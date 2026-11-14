@@ -18,9 +18,12 @@ def valid() -> dict[str, object]:
 
 
 def test_schema_valid_prefix() -> None:
+    line = "2026-11-14 " + "a" * 50
     assert AnalysisResult.model_validate(
-        valid() | {"evidence": ["ERROR fa"]}, context={"log": "  ERROR failure  \n"}
-    ).evidence == ["ERROR fa"]
+        valid() | {"evidence": [line[:40]]}, context={"log": line}
+    ).evidence == [line[:40]]
+    with pytest.raises(ValidationError):
+        AnalysisResult.model_validate(valid() | {"evidence": ["2026-11-"]}, context={"log": line})
 
 
 @pytest.mark.parametrize(
@@ -61,3 +64,19 @@ def test_short_prefix_rejected_and_complete_short_line_accepted() -> None:
         valid() | {"evidence": ["  2  "]}, context={"log": " 2 "}
     )
     assert result.evidence == ["  2  "]
+
+
+@pytest.mark.parametrize(
+    ("field", "good", "bad"),
+    [
+        ("root_cause", "x" * 600, "x" * 601),
+        ("notes", "x" * 600, "x" * 601),
+        ("fix_steps", ["x" * 400] * 3, ["x" * 401] * 3),
+        ("missing_context", ["x" * 200] * 10, ["x" * 201]),
+        ("missing_context", ["x"] * 10, ["x"] * 11),
+    ],
+)
+def test_schema_length_limits(field: str, good: object, bad: object) -> None:
+    AnalysisResult.model_validate(valid() | {field: good}, context={"log": "ERROR"})
+    with pytest.raises(ValidationError):
+        AnalysisResult.model_validate(valid() | {field: bad}, context={"log": "ERROR"})

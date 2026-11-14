@@ -2,6 +2,7 @@
 
 import json
 import secrets
+from datetime import datetime, timezone
 from pathlib import Path
 
 import typer
@@ -15,7 +16,7 @@ from .config import Settings
 from .prompts import load_prompt
 from .providers import ProviderError, chat, create_client, is_loopback
 from .redaction import redact
-from .report import markdown, render
+from .report import ReportMeta, markdown, render
 from .schema import AnalysisResult
 
 app = typer.Typer(help="Analizza log OpenText con LLM locali o cloud.", no_args_is_help=True)
@@ -58,14 +59,21 @@ def analyze(
         raise typer.Exit(code=1)
     if settings.redact:
         log = redact(log)
+
+    def measure(value: str) -> int:
+        return len(
+            json.dumps(value, ensure_ascii=False)[1:-1]
+            .replace("<", "\\u003c")
+            .replace(">", "\\u003e")
+        )
+
     try:
-        if settings.max_chunk_chars > 0 and any(
-            len(line) > settings.max_chunk_chars for line in log.splitlines(keepends=True)
-        ):
+        budget = settings.max_chunk_chars - 2
+        if budget > 0 and any(measure(line) > budget for line in log.splitlines(keepends=True)):
             console.print(
                 Text("Attenzione: una riga lunga è stata divisa tra i chunk.", style="yellow")
             )
-        chunks = split_chunks(log, settings.max_chunk_chars)
+        chunks = split_chunks(log, budget, measure=measure)
         index, selected = select_chunk(chunks)
         system, user = load_prompt("analyze_v1.1")
     except ValueError as exc:
@@ -83,44 +91,62 @@ def analyze(
     )
     correction = ""
     try:
-        client = create_client(settings)
-        for attempt in range(2):
-            nonce = secrets.token_hex(16)
-            while nonce in selected:
+        with create_client(settings) as client:
+            for attempt in range(2):
                 nonce = secrets.token_hex(16)
-            prompt = user.replace("{{NONCE}}", nonce).replace("{{CHUNK_INDEX}}", str(index + 1))
-            prompt = prompt.replace("{{CHUNK_TOTAL}}", str(len(chunks))).replace(
-                "{{LOG}}", encoded_log
-            )
-            messages = [{"role": "system", "content": system}, {"role": "user", "content": prompt}]
-            if correction:
-                messages.append({"role": "user", "content": correction})
-            response = chat(client, settings, messages)
-            try:
-                result = AnalysisResult.model_validate_json(response, context={"log": selected})
-                break
-            except ValidationError as exc:
-                fields = set(AnalysisResult.model_fields)
-                problems = []
-                for error in exc.errors(
-                    include_input=False, include_url=False, include_context=False
-                ):
-                    location = error["loc"]
-                    field = location[0] if location and location[0] in fields else "schema"
-                    detail = error["msg"] if error["type"] == "value_error" else error["type"]
-                    problems.append(f"{field}: {detail}")
-                if attempt == 1:
-                    raise ProviderError(
-                        "Risposta del provider non valida dopo il secondo tentativo"
-                    ) from exc
-                correction = "Risposta non valida: " + "; ".join(problems) + ". Correggi il JSON."
+                while nonce in selected:
+                    nonce = secrets.token_hex(16)
+                prompt = user.replace("{{NONCE}}", nonce).replace("{{CHUNK_INDEX}}", str(index + 1))
+                prompt = prompt.replace("{{CHUNK_TOTAL}}", str(len(chunks))).replace(
+                    "{{LOG}}", encoded_log
+                )
+                messages = [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": prompt},
+                ]
+                if correction:
+                    messages.append({"role": "user", "content": correction})
+                response = chat(client, settings, messages)
+                try:
+                    result = AnalysisResult.model_validate_json(response, context={"log": selected})
+                    break
+                except ValidationError as exc:
+                    fields = set(AnalysisResult.model_fields)
+                    problems = []
+                    for error in exc.errors(
+                        include_input=False, include_url=False, include_context=False
+                    ):
+                        location = error["loc"]
+                        field = location[0] if location and location[0] in fields else "schema"
+                        detail = error["msg"] if error["type"] == "value_error" else error["type"]
+                        problems.append(f"{field}: {detail}")
+                    if attempt == 1:
+                        raise ProviderError(
+                            "Risposta del provider non valida dopo il secondo tentativo"
+                        ) from exc
+                    correction = (
+                        "Risposta non valida: " + "; ".join(problems) + ". Correggi il JSON."
+                    )
     except ProviderError as exc:
         console.print(Text(str(exc), style="red"))
         raise typer.Exit(code=2) from exc
+    render(result, console)
     if md is not None:
         try:
-            md.write_text(markdown(result), encoding="utf-8")
+            md.write_text(
+                markdown(
+                    result,
+                    ReportMeta(
+                        Path(path).name,
+                        index + 1,
+                        len(chunks),
+                        settings.provider,
+                        settings.model,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                ),
+                encoding="utf-8",
+            )
         except (OSError, UnicodeError) as exc:
             console.print(Text(f"Errore scrittura report: {exc}", style="red"))
             raise typer.Exit(code=1) from exc
-    render(result, console)

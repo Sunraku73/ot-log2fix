@@ -1,6 +1,6 @@
 """Validazione della risposta e delle evidenze rispetto al log analizzato."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
@@ -11,13 +11,13 @@ class AnalysisResult(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
     status: Literal["ok", "insufficient_context"]
-    root_cause: str = Field(min_length=1)
+    root_cause: str = Field(min_length=1, max_length=600)
     confidence: Literal["high", "medium", "low"]
     evidence: list[str] = Field(min_length=1, max_length=5)
-    fix_steps: list[str] = Field(min_length=3, max_length=3)
-    missing_context: list[str]
+    fix_steps: list[Annotated[str, Field(max_length=400)]] = Field(min_length=3, max_length=3)
+    missing_context: list[Annotated[str, Field(max_length=200)]] = Field(max_length=10)
     injection_detected: bool
-    notes: str
+    notes: str = Field(max_length=600)
 
     @field_validator("evidence")
     @classmethod
@@ -30,7 +30,7 @@ class AnalysisResult(BaseModel):
             if not value or len(item) > 200 or len(value.splitlines()) != 1:
                 raise ValueError("Evidenza vuota, multilinea o oltre 200 caratteri")
             if not any(
-                line.startswith(value) and (len(value) >= 8 or value == line) for line in log_lines
+                line.startswith(value) and (len(value) >= 40 or value == line) for line in log_lines
             ):
                 raise ValueError("Evidenza non presente nel log redatto")
         return evidence

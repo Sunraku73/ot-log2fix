@@ -25,3 +25,33 @@ def test_long_line_is_split_without_changing_content() -> None:
     chunks = split_chunks(text, 12000)
     assert "".join(chunks) == text
     assert all(len(chunk) <= 12000 for chunk in chunks)
+
+
+def test_select_most_level_tokens_and_ignore_quoted_user_agent() -> None:
+    chunks = [
+        "2026 ERROR ORA-01652\n2026 ERROR stack trace",
+        "INFO a",
+        "INFO b",
+        'INFO user-agent="ERROR nothing"',
+    ]
+    assert select_chunk(chunks) == (0, chunks[0])
+    assert select_chunk(["ERROR a", "FATAL b"]) == (1, "FATAL b")
+    assert select_chunk(["INFO", "INFO"]) == (1, "INFO")
+
+
+def test_encoded_measure_respects_budget() -> None:
+    import json
+
+    def measure(value: str) -> int:
+        return len(
+            json.dumps(value, ensure_ascii=False)[1:-1]
+            .replace("<", "\\u003c")
+            .replace(">", "\\u003e")
+        )
+
+    text = "<" * 12000
+    chunks = split_chunks(text, 11998, measure)
+    assert "".join(chunks) == text
+    assert all(measure(chunk) + 2 <= 12000 for chunk in chunks)
+    with pytest.raises(ValueError):
+        split_chunks("<", 5, measure)
