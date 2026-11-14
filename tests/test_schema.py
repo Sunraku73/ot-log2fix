@@ -19,8 +19,8 @@ def valid() -> dict[str, object]:
 
 def test_schema_valid_prefix() -> None:
     assert AnalysisResult.model_validate(
-        valid(), context={"log": "  ERROR failure  \n"}
-    ).evidence == ["ERROR"]
+        valid() | {"evidence": ["ERROR fa"]}, context={"log": "  ERROR failure  \n"}
+    ).evidence == ["ERROR fa"]
 
 
 @pytest.mark.parametrize(
@@ -52,3 +52,12 @@ def test_schema_insufficient_context() -> None:
 def test_schema_requires_log_context() -> None:
     with pytest.raises(ValidationError):
         AnalysisResult.model_validate(valid())
+
+
+def test_short_prefix_rejected_and_complete_short_line_accepted() -> None:
+    with pytest.raises(ValidationError):
+        AnalysisResult.model_validate(valid() | {"evidence": ["2"]}, context={"log": "2026 error"})
+    result = AnalysisResult.model_validate(
+        valid() | {"evidence": ["  2  "]}, context={"log": " 2 "}
+    )
+    assert result.evidence == ["  2  "]

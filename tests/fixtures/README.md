@@ -58,5 +58,8 @@ Bypass della normalizzazione introdotta in S1.5: percent-encoding x4 in un `Next
 ### `adv_05_redaction_bypass_s18.txt` (aggiunta in S1.8)
 Vettori classificati con la rubrica del planner (MUST solo se presenti nel logging OpenText standard a livello default): tutti `SHOULD` (C40-C48). Lettere `\uXXXX` nella chiave JSON, `%26`/`%3B`/`%20` che troncano il valore in query string, escape Gson `\u003d`, `Basic` spezzato su due righe, virgoletta escaped nel valore JSON, CDATA, stringa di connessione ADO con spazio.
 
+### `adv_06_redaction_bypass_s22.txt` (aggiunta in S2.2)
+Varianti dei vettori C40-C48 sul codice S2.0: virgola `%2C` nel valore in query string, stringa di connessione PostgreSQL (`Host=`) con spazio, `Basic` spezzato senza indentazione, CDATA con prefisso di namespace (C50, C51, C53, C54). Tutti `SHOULD`: nessuna evidenza da capture reali anonimizzate.
+
 Oltre al manifest conviene anche un controllo generico `"CANARY" not in redact(text)`, che copre le forme decodificate.
 Il file `adv_02` contiene di proposito `\r\n` e U+200B: non normalizzarlo con editor o pre-commit.

@@ -33,7 +33,7 @@ def test_analyze_redacts_before_provider(tmp_path: Path) -> None:
     path.write_text("failure password=secret user@example.test", encoding="utf-8")
     with (
         patch("otlog2fix.cli.create_client"),
-        patch("otlog2fix.cli.chat", return_value=response("failure")) as chat,
+        patch("otlog2fix.cli.chat", return_value=response("failure [REDACTED:password]")) as chat,
     ):
         result = runner.invoke(app, ["analyze", str(path)])
     assert result.exit_code == 0
@@ -229,22 +229,24 @@ def test_selected_chunk_and_markdown_file(tmp_path: Path) -> None:
     assert "# Analisi del log" in output.read_text(encoding="utf-8")
 
 
-def test_oversized_line_rejected(tmp_path: Path) -> None:
+def test_oversized_line_is_analyzed(tmp_path: Path) -> None:
     path = tmp_path / "test.log"
-    path.write_text("long line", encoding="utf-8")
+    path.write_text("x" * 20000, encoding="utf-8")
     with (
-        patch("otlog2fix.cli.Settings", return_value=Settings(max_chunk_chars=3)),
-        patch("otlog2fix.cli.create_client") as client,
+        patch("otlog2fix.cli.Settings", return_value=Settings(max_chunk_chars=12000)),
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value=response("x" * 8)) as chat,
     ):
         result = runner.invoke(app, ["analyze", str(path)])
-    assert result.exit_code == 1
-    client.assert_not_called()
+    assert result.exit_code == 0
+    assert "riga lunga" in result.stdout
+    assert "chunk 2 di 2" in chat.call_args.args[2][1]["content"]
 
 
 def test_insufficient_context_is_success(tmp_path: Path) -> None:
     path = tmp_path / "test.log"
     path.write_text("ERROR unknown", encoding="utf-8")
-    payload = json.loads(response("ERROR"))
+    payload = json.loads(response("ERROR unknown"))
     payload.update(
         status="insufficient_context", confidence="low", root_cause="NON HO ABBASTANZA CONTESTO"
     )
@@ -262,7 +264,7 @@ def test_markdown_write_error_is_input_error(tmp_path: Path) -> None:
     path.write_text("ERROR unknown", encoding="utf-8")
     with (
         patch("otlog2fix.cli.create_client"),
-        patch("otlog2fix.cli.chat", return_value=response("ERROR")),
+        patch("otlog2fix.cli.chat", return_value=response("ERROR unknown")),
     ):
         result = runner.invoke(app, ["analyze", str(path), "--md", str(tmp_path)])
     assert result.exit_code == 1

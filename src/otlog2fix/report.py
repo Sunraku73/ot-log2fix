@@ -16,9 +16,7 @@ def _escape(value: str) -> str:
 
 
 def markdown(result: AnalysisResult) -> str:
-    evidence = "\n".join(
-        item.replace("![", r"\![").replace("](", r"]\(") for item in result.evidence
-    )
+    evidence = "\n".join(result.evidence)
     fence = "`" * max(3, max((len(m.group()) for m in re.finditer(r"`+", evidence)), default=0) + 1)
     lines = [
         "# Analisi del log",

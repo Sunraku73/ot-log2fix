@@ -1,0 +1,7 @@
+2026-11-14 20:00:00,001 INFO  [main] SYNTHETIC redaction-bypass fixture (S2.2) start, host=otcs-synth06.example.invalid
+192.0.2.7 - - [14/Nov/2026:20:00:01 +0100] "GET /otcs/cs.exe?func=ll.login&username=synth.u50&password=Synth%2CCANARY50 HTTP/1.1" 302 0
+2026-11-14 20:00:02,003 ERROR [db] connect failed: Host=192.0.2.10;Port=5432;Username=otcs_synth;Password=Synth CANARY51;Database=otcs
+2026-11-14 20:00:03,004 DEBUG [http] Authorization: Basic c3ludGguYWRtaW46U3ludGhf
+Q0FOQVJZNTNfcHdfbG9uZ19lbm91Z2hfdG9fd3JhcA==
+2026-11-14 20:00:04,005 INFO  [cfg] <cfg:password><![CDATA[Synth_CANARY54_pw]]></cfg:password>
+2026-11-14 20:00:05,006 INFO  [main] SYNTHETIC redaction-bypass fixture (S2.2) end

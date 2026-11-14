@@ -59,6 +59,12 @@ def analyze(
     if settings.redact:
         log = redact(log)
     try:
+        if settings.max_chunk_chars > 0 and any(
+            len(line) > settings.max_chunk_chars for line in log.splitlines(keepends=True)
+        ):
+            console.print(
+                Text("Attenzione: una riga lunga è stata divisa tra i chunk.", style="yellow")
+            )
         chunks = split_chunks(log, settings.max_chunk_chars)
         index, selected = select_chunk(chunks)
         system, user = load_prompt("analyze_v1.1")

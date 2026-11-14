@@ -29,7 +29,9 @@ class AnalysisResult(BaseModel):
             value = item.strip()
             if not value or len(item) > 200 or len(value.splitlines()) != 1:
                 raise ValueError("Evidenza vuota, multilinea o oltre 200 caratteri")
-            if not any(line.startswith(value) for line in log_lines):
+            if not any(
+                line.startswith(value) and (len(value) >= 8 or value == line) for line in log_lines
+            ):
                 raise ValueError("Evidenza non presente nel log redatto")
         return evidence
 

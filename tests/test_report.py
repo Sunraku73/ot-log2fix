@@ -23,7 +23,7 @@ def test_report_inert_markdown_and_fence() -> None:
     )
     md = markdown(result)
     assert "````text" in md
-    assert r"\![img]\(http://evil)" in md
+    assert "````text\n" + evidence + "\n````" in md
     assert "&lt;a href=evil&gt;" in md
     assert r"\[link\]\(http&#58;//evil\)" in md
 

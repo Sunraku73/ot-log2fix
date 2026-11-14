@@ -58,3 +58,7 @@ C45	MUST	adv_05_redaction_bypass_s18.txt	Basic auth value wrapped onto a continu
 C46	MUST	adv_05_redaction_bypass_s18.txt	JSON-escaped quote inside password value (partial leak)	CANARY46
 C47	MUST	adv_05_redaction_bypass_s18.txt	XML password element with CDATA	CANARY47
 C48	MUST	adv_05_redaction_bypass_s18.txt	ADO/SQL Server connection string, password containing a space (partial leak)	CANARY48
+C50	SHOULD	adv_06_redaction_bypass_s22.txt	percent-encoded comma inside query-string password value (partial leak)	CANARY50
+C51	SHOULD	adv_06_redaction_bypass_s22.txt	PostgreSQL/Npgsql connection string (Host=), password containing a space (partial leak)	CANARY51
+C53	SHOULD	adv_06_redaction_bypass_s22.txt	Basic auth value wrapped onto a continuation line WITHOUT indentation	Q0FOQVJZNTNfcHdfbG9uZ19lbm91Z2hfdG9fd3JhcA==
+C54	SHOULD	adv_06_redaction_bypass_s22.txt	XML password element with namespace prefix + CDATA	CANARY54
