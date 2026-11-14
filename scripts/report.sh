@@ -18,7 +18,16 @@ allowlisted() {
 
 {
   echo "# OT-Log2Fix — review bundle $(date -Iseconds)"
-  echo; echo "## Git status"; echo '```'; git status --short; echo '```'
+  echo; echo "## Git status (allowlist)"; echo '```'
+  excluded=0
+  while IFS= read -r line; do
+    if [ -z "$line" ]; then continue; fi
+    p="${line:3}"
+    case "$p" in *" -> "*) p="${p##* -> }";; esac
+    if allowlisted "$p"; then printf '%s\n' "$line"; else excluded=$((excluded+1)); fi
+  done < <(git -c core.quotepath=false status --short)
+  echo "($excluded file non in allowlist esclusi)"
+  echo '```'
   echo; echo "## Diff tracked vs HEAD"; echo '```diff'
   git diff "$BASE" -- "${PATHS[@]}"; echo '```'
   echo; echo "## File nuovi (allowlist, <1 MiB)"

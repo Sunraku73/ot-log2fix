@@ -49,12 +49,12 @@ C36	MUST	adv_04_redaction_bypass_s16.txt	base64 in HTTP header with Password-Bas
 C37	MUST	adv_04_redaction_bypass_s16.txt	base64 under camelCase secret key (clientSecretB64)	U3ludGhfQ0FOQVJZMzdfcHc=
 C38	MUST	adv_04_redaction_bypass_s16.txt	PGP PRIVATE KEY BLOCK	U1lOVEgtTk9ULUEtS0VZLUNBTkFSWTM4LXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eQ==
 C39	MUST	adv_04_redaction_bypass_s16.txt	OTCSTicket with space separator (no = or :)	SynthTkt-CANARY39-aB3dE5fG7h
-C40	SHOULD	adv_05_redaction_bypass_s18.txt	\uXXXX escape of letters in JSON key (p\u0061ssword)	CANARY40
-C41	SHOULD	adv_05_redaction_bypass_s18.txt	percent-encoded & inside query-string password value (partial leak)	CANARY41
-C42	SHOULD	adv_05_redaction_bypass_s18.txt	percent-encoded ; inside query-string password value (partial leak)	CANARY42
-C43	SHOULD	adv_05_redaction_bypass_s18.txt	percent-encoded space inside query-string password value (partial leak)	CANARY43
-C44	SHOULD	adv_05_redaction_bypass_s18.txt	Gson HTML-safe escaping (\u0026 / \u003d) of a query string	CANARY44
-C45	SHOULD	adv_05_redaction_bypass_s18.txt	Basic auth value wrapped onto a continuation line	Q0FOQVJZNDVfcHdfbG9uZ19lbm91Z2hfdG9fd3JhcA==
-C46	SHOULD	adv_05_redaction_bypass_s18.txt	JSON-escaped quote inside password value (partial leak)	CANARY46
-C47	SHOULD	adv_05_redaction_bypass_s18.txt	XML password element with CDATA	CANARY47
-C48	SHOULD	adv_05_redaction_bypass_s18.txt	ADO/SQL Server connection string, password containing a space (partial leak)	CANARY48
+C40	MUST	adv_05_redaction_bypass_s18.txt	\uXXXX escape of letters in JSON key (p\u0061ssword)	CANARY40
+C41	MUST	adv_05_redaction_bypass_s18.txt	percent-encoded & inside query-string password value (partial leak)	CANARY41
+C42	MUST	adv_05_redaction_bypass_s18.txt	percent-encoded ; inside query-string password value (partial leak)	CANARY42
+C43	MUST	adv_05_redaction_bypass_s18.txt	percent-encoded space inside query-string password value (partial leak)	CANARY43
+C44	MUST	adv_05_redaction_bypass_s18.txt	Gson HTML-safe escaping (\u0026 / \u003d) of a query string	CANARY44
+C45	MUST	adv_05_redaction_bypass_s18.txt	Basic auth value wrapped onto a continuation line	Q0FOQVJZNDVfcHdfbG9uZ19lbm91Z2hfdG9fd3JhcA==
+C46	MUST	adv_05_redaction_bypass_s18.txt	JSON-escaped quote inside password value (partial leak)	CANARY46
+C47	MUST	adv_05_redaction_bypass_s18.txt	XML password element with CDATA	CANARY47
+C48	MUST	adv_05_redaction_bypass_s18.txt	ADO/SQL Server connection string, password containing a space (partial leak)	CANARY48

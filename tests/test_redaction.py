@@ -112,3 +112,50 @@ def test_decoded_unicode_line_separator_does_not_create_record() -> None:
     result = redact("password=x&#8232;forged")
     assert len(result.splitlines()) == 1
     assert "⏎forged" in result
+
+
+@pytest.mark.parametrize("separator", ["%26", "%3B", "%20", "%2526"])
+def test_encoded_query_values_are_fully_redacted(separator: str) -> None:
+    source = f"/login?password=Synth{separator}CANARY41&safe=b"
+    result = redact(source)
+    assert "Synth" not in result and "CANARY41" not in result
+    assert "safe=b" in result
+
+
+def test_literal_query_separator_preserves_other_parameters() -> None:
+    result = redact("password=a&safe=b")
+    assert "password=a" not in result
+    assert "safe=b" in result
+
+
+def test_unicode_escape_normalization_preserves_line_integrity() -> None:
+    source = r'body={"p\u0061ssword":"test\u000aERROR"}'
+    result = redact(source)
+    assert "test" not in result
+    assert len(result.splitlines()) == 1
+    assert redact(r"clean=\u0041") == r"clean=\u0041"
+
+
+def test_multiline_basic_and_xml_cdata() -> None:
+    result = redact("Authorization: Basic QUJD\r\n  REVGRw==\r\n  SEk=\r\nnext line\r\n")
+    assert "QUJD" not in result and "REVGRw==" not in result and "SEk=" not in result
+    assert "next line" in result
+    assert "CDATA-secret" not in redact("<password><![CDATA[CDATA-secret]]></password>")
+    assert "CDATA-secret" not in redact("<password><![CDATA[CDATA-secret")
+
+
+def test_connection_string_password_including_spaces() -> None:
+    result = redact("Server=host;Password=foo bar;Database=app")
+    assert "foo" not in result and "bar" not in result
+    assert "Database=app" in result
+
+
+@pytest.mark.parametrize("key", ["pass_count", "ticket_count", "password_length", "tokenSize"])
+def test_integer_counts_are_preserved(key: str) -> None:
+    line = f"{key}=123"
+    assert redact(line) == line
+
+
+@pytest.mark.parametrize("line", ["ticket_id=SynthTkt-123", "password_count=12x", "pass_count=3.5"])
+def test_non_integer_and_id_values_are_redacted(line: str) -> None:
+    assert line not in redact(line)
