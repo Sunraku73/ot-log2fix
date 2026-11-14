@@ -15,13 +15,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = ["pytest>=8", "ruff>=0.6", "python-dotenv>=1"]
 
 [project.scripts]
 otlog2fix = "otlog2fix.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+otlog2fix = ["prompts/*.md"]
 
 [tool.ruff]
 line-length = 100

@@ -1,0 +1,12 @@
+2026-11-14 19:00:00,001 INFO  [main] SYNTHETIC redaction-bypass fixture (S1.8) start, host=otcs-synth05.example.invalid
+2026-11-14 19:00:01,002 DEBUG [rest] body={"p\u0061ssword":"Synth_CANARY40_pw"}
+192.0.2.7 - - [14/Nov/2026:19:00:02 +0100] "GET /otcs/cs.exe?func=ll.login&username=synth.u41&password=Synth%26CANARY41 HTTP/1.1" 302 0
+192.0.2.7 - - [14/Nov/2026:19:00:03 +0100] "GET /otcs/cs.exe?func=ll.login&username=synth.u42&password=Synth%3BCANARY42 HTTP/1.1" 302 0
+192.0.2.7 - - [14/Nov/2026:19:00:04 +0100] "GET /otcs/cs.exe?func=ll.login&username=synth.u43&password=Synth%20CANARY43 HTTP/1.1" 302 0
+2026-11-14 19:00:05,006 DEBUG [awp] {"query":"user=synth.u44\u0026password\u003dSynth_CANARY44_pw"}
+2026-11-14 19:00:06,007 DEBUG [http] Authorization: Basic c3ludGguYWRtaW46U3ludGhf
+    Q0FOQVJZNDVfcHdfbG9uZ19lbm91Z2hfdG9fd3JhcA==
+2026-11-14 19:00:07,008 DEBUG [rest] body={"password":"Synth\"CANARY46_pw"}
+2026-11-14 19:00:08,009 INFO  [cfg] <password><![CDATA[Synth_CANARY47_pw]]></password>
+2026-11-14 19:00:09,010 ERROR [db] connect failed: Server=192.0.2.10;User Id=otcs_synth;Password=Synth CANARY48;Database=otcs
+2026-11-14 19:00:10,011 INFO  [main] SYNTHETIC redaction-bypass fixture (S1.8) end

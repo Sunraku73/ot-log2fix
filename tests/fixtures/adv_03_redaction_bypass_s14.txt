@@ -1,0 +1,15 @@
+2026-11-14 17:00:00,001 INFO  [main] SYNTHETIC redaction-bypass fixture (S1.4) start, host=otcs-synth03.example.invalid
+2026-11-14 17:00:01,002 DEBUG [webreport] rendered config: &#112;assword=Synth_CANARY24_pw
+2026-11-14 17:00:02,003 DEBUG [rest] request body={
+  "username": "synth.user25",
+  "password":
+    "Synth_CANARY25_pw"
+}
+2026-11-14 17:00:03,004 INFO  [otds] Sync from https://svc_synth:Synth@CANARY26_pw@192.0.2.10:8443/otdsws/rest
+2026-11-14 17:00:04,005 GET /otcs/cs.exe?func=ll.login&username=synth.user27&p%2561ssword=Synth_CANARY27_pw
+2026-11-14 17:00:05,006 DEBUG [cfg] db_passwd=Synth_CANARY28_pw
+2026-11-14 17:00:06,007 DEBUG [cfg] password: |
+  Synth_CANARY29_pw
+2026-11-14 17:00:07,008 INFO  [otds] Sync from //svc_synth:Synth!CANARY30_pw@192.0.2.10:8443/otdsws
+2026-11-14 17:00:08,009 DEBUG [rest] {"url":"https:\/\/svc_synth:Synth!CANARY31_pw@192.0.2.10\/otdsws"}
+2026-11-14 17:00:09,010 INFO  [main] SYNTHETIC redaction-bypass fixture (S1.4) end

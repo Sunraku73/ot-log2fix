@@ -2,12 +2,14 @@
 
 import time
 from typing import Any
+from urllib.parse import urlsplit
 
 from openai import (
     APIConnectionError,
     APIError,
     APIStatusError,
     APITimeoutError,
+    DefaultHttpxClient,
     OpenAI,
     OpenAIError,
 )
@@ -19,14 +21,26 @@ class ProviderError(Exception):
     """Errore durante la comunicazione con il provider."""
 
 
+def is_loopback(base_url: str) -> bool:
+    """Determina la località dal solo host della URL configurata."""
+    try:
+        return urlsplit(base_url).hostname in {"localhost", "127.0.0.1", "::1"}
+    except ValueError:
+        return False
+
+
 def create_client(settings: Settings) -> OpenAI:
     """Crea il client con retry gestiti esplicitamente da chat."""
     try:
+        kwargs: dict[str, Any] = {}
+        if is_loopback(settings.base_url):
+            kwargs["http_client"] = DefaultHttpxClient(trust_env=False)
         return OpenAI(
             base_url=settings.base_url,
             api_key=settings.effective_api_key,
             timeout=60.0,
             max_retries=0,
+            **kwargs,
         )
     except (OpenAIError, ValueError) as exc:
         raise ProviderError("Configurazione del provider non valida") from exc

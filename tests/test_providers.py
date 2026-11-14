@@ -57,8 +57,9 @@ def test_chat_invalid_response() -> None:
 
 
 def test_create_client_invalid_configuration() -> None:
-    with patch("otlog2fix.providers.OpenAI", side_effect=ValueError("invalid")), pytest.raises(
-        ProviderError
+    with (
+        patch("otlog2fix.providers.OpenAI", side_effect=ValueError("invalid")),
+        pytest.raises(ProviderError),
     ):
         create_client(Settings())
 
@@ -68,3 +69,19 @@ def test_chat_connection_error() -> None:
     client.chat.completions.create.side_effect = openai.APIConnectionError(request=MagicMock())
     with pytest.raises(ProviderError):
         chat(client, Settings(), [])
+
+
+def test_local_client_ignores_proxy_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    for variable in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"):
+        monkeypatch.setenv(variable, "http://proxy.example.test:8080")
+    client = create_client(Settings(base_url="http://localhost:11434/v1"))
+    try:
+        assert client._client.trust_env is False
+    finally:
+        client.close()
+
+
+def test_cloud_client_keeps_default_proxy_behavior() -> None:
+    with patch("otlog2fix.providers.OpenAI") as constructor:
+        create_client(Settings(base_url="https://example.test/v1"))
+        assert "http_client" not in constructor.call_args.kwargs

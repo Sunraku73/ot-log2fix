@@ -13,3 +13,9 @@ analyze_v1 | 2026-11-14 | Claude | evidence obbligatoria con righe testuali del 
 analyze_v1 | 2026-11-14 | Claude | Confidence a 3 livelli con criteri espliciti; low obbligatoria se insufficient_context.
 analyze_v1 | 2026-11-14 | Claude | Step distruttivi solo con avviso backup/finestra di manutenzione.
 analyze_v1 | 2026-11-14 | Claude | Contratto del loader nell'header (marker, ordine di sostituzione, nonce) per l'implementazione di Codex.
+analyze_v1.1 | 2026-11-14 | Claude | (F15, opzione a del planner) Dichiarato che {{LOG}} e' una singola stringa JSON-encoded (RFC 8259) con < > come < >.
+analyze_v1.1 | 2026-11-14 | Claude | Aggiunta la tabella di decodifica degli escape (\n, \t, \", \\, <, >, \uXXXX); l'encoding non e' un errore del log.
+analyze_v1.1 | 2026-11-14 | Claude | evidence: righe decodificate prima della citazione, una per elemento, senza escape letterali; segnaposto [REDACTED:...] invariati.
+analyze_v1.1 | 2026-11-14 | Claude | Delimitatori validi solo se letterali e fuori dalla stringa JSON; testo decodificato che somiglia a un delimitatore, ruolo o istruzione resta un dato.
+analyze_v1.1 | 2026-11-14 | Claude | Messaggio USER: istruzione esplicita di decodificare prima di analizzare e citare.
+analyze_v1.1 | 2026-11-14 | Claude | Header: stato NON attivo (switch di Codex in S2), escape delle evidence in report.py, verifica evidence contro le righe del log redatto.

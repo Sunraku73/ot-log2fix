@@ -49,5 +49,14 @@ for id_, level, fixture, vector, needle in load_canaries():
         assert needle not in out, f"{id_} ({vector}) leaked"
 ```
 
+### `adv_03_redaction_bypass_s14.txt` (aggiunta in S1.4)
+Bypass trovati nella re-review S1.3, mai visti prima dalla redaction: chiave con entita' HTML (`&#112;assword`), JSON pretty-printed con valore sulla riga successiva, `@` non codificata nella password di un URL (C24-C26, `MUST`); doppio percent-encoding, `passwd`, YAML `|`, URL protocol-relative, URL con `\/` JSON-escaped (C27-C31, `SHOULD`).
+
+### `adv_04_redaction_bypass_s16.txt` (aggiunta in S1.6)
+Bypass della normalizzazione introdotta in S1.5: percent-encoding x4 in un `NextURL` annidato (oltre le 3 passate), base64 sotto `password_b64`, header PEM spezzato dal logger su due righe, risposta REST CS `/auth` `{"ticket":...}` (C32-C35, `MUST`); header `*-Password-Base64`, `clientSecretB64`, `PGP PRIVATE KEY BLOCK`, `OTCSTicket` separato da spazio (C36-C39, `SHOULD`).
+
+### `adv_05_redaction_bypass_s18.txt` (aggiunta in S1.8)
+Vettori classificati con la rubrica del planner (MUST solo se presenti nel logging OpenText standard a livello default): tutti `SHOULD` (C40-C48). Lettere `\uXXXX` nella chiave JSON, `%26`/`%3B`/`%20` che troncano il valore in query string, escape Gson `\u003d`, `Basic` spezzato su due righe, virgoletta escaped nel valore JSON, CDATA, stringa di connessione ADO con spazio.
+
 Oltre al manifest conviene anche un controllo generico `"CANARY" not in redact(text)`, che copre le forme decodificate.
 Il file `adv_02` contiene di proposito `\r\n` e U+200B: non normalizzarlo con editor o pre-commit.

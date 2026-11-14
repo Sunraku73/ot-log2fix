@@ -22,14 +22,39 @@ C12	MUST	adv_02_redaction_bypass.txt	OpenText LLCookie / OTDSTicket cookies	Synt
 C13	MUST	adv_02_redaction_bypass.txt	lowercase bearer + JWT	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzeW50aC51c2VyMTMiLCJub3RlIjoiQ0FOQVJZMTMifQ.U3ludGhTaWdDQU5BUlkxMw
 C14	MUST	adv_02_redaction_bypass.txt	provider API key without key= prefix	sk-or-v1-SynthCANARY14-not-a-real-key-000000
 C15a	MUST	adv_02_redaction_bypass.txt	plain email	synth.user15@example.invalid
-C15b	SHOULD	adv_02_redaction_bypass.txt	obfuscated email [at] [dot]	synth.user16 [at] example [dot] invalid
+C15b	MUST	adv_02_redaction_bypass.txt	obfuscated email [at] [dot]	synth.user16 [at] example [dot] invalid
 C16	MUST	adv_02_redaction_bypass.txt	base64 value under pwd-like key	U3ludGhfQ0FOQVJZMTZfcHc=
-C17	SHOULD	adv_02_redaction_bypass.txt	hex value under secret-like key	53796e74685f43414e41525931375f7077
+C17	MUST	adv_02_redaction_bypass.txt	hex value under secret-like key	53796e74685f43414e41525931375f7077
 C18	MUST	adv_02_redaction_bypass.txt	sqlplus user/"quoted pw"@tns	CANARY18
 C19	MUST	adv_02_redaction_bypass.txt	JVM -D system property	Synth_CANARY19_pw
 C20	MUST	adv_02_redaction_bypass.txt	password in exception prose, no '=' sign	Synth_CANARY20_pw
-C21	SHOULD	adv_02_redaction_bypass.txt	zero-width space inside key name	Synth_CANARY21_pw
+C21	MUST	adv_02_redaction_bypass.txt	zero-width space inside key name	Synth_CANARY21_pw
 C22	MUST	adv_02_redaction_bypass.txt	tab separators and CRLF line ending	Synth_CANARY22_pw
 C23	MUST	adv_02_redaction_bypass.txt	PEM private key block (multiline)	U1lOVEhFVElDLU5PVC1BLUtFWS1DQU5BUlkyMy14eHh4eHh4eHh4eHh4eHh4eHh4
 C23	MUST	adv_02_redaction_bypass.txt	PEM private key block (multiline)	eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHg=
 C90	MUST	03_appworks_rest_401.txt	Bearer JWT in fixture 03 (non-adversarial baseline)	eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzeW50aC5hcHBfdXNlciIsImV4cCI6MTc5NDY0NjgwMCwibm90ZSI6IkNBTkFSWTkwIn0.U3ludGhTaWduYXR1cmVDQU5BUlk5MA
+C24	MUST	adv_03_redaction_bypass_s14.txt	HTML numeric entity in key name (&#112;assword)	Synth_CANARY24_pw
+C25	MUST	adv_03_redaction_bypass_s14.txt	pretty-printed JSON: value on the line after the key	Synth_CANARY25_pw
+C26	MUST	adv_03_redaction_bypass_s14.txt	URL userinfo with unencoded @ in password, IP host	CANARY26_pw
+C27	MUST	adv_03_redaction_bypass_s14.txt	double percent-encoding of key (p%2561ssword)	Synth_CANARY27_pw
+C28	MUST	adv_03_redaction_bypass_s14.txt	passwd key variant	Synth_CANARY28_pw
+C29	MUST	adv_03_redaction_bypass_s14.txt	YAML block scalar (password: |)	Synth_CANARY29_pw
+C30	MUST	adv_03_redaction_bypass_s14.txt	protocol-relative URL with userinfo (//user:pw@)	Synth!CANARY30_pw
+C31	MUST	adv_03_redaction_bypass_s14.txt	URL with JSON-escaped slashes (https:\/\/)	Synth!CANARY31_pw
+C32	MUST	adv_04_redaction_bypass_s16.txt	percent-encoding x4 (beyond the 3 normalization passes) in nested NextURL	Synth_CANARY32_pw
+C33	MUST	adv_04_redaction_bypass_s16.txt	base64 value under sensitive key with suffix (password_b64)	U3ludGhfQ0FOQVJZMzNfcHc=
+C34	MUST	adv_04_redaction_bypass_s16.txt	PEM header wrapped across two lines by the logger	U1lOVEgtTk9ULUEtS0VZLUNBTkFSWTM0LXh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eA==
+C35	MUST	adv_04_redaction_bypass_s16.txt	Content Server REST /auth response {"ticket":...}	SynthTkt-CANARY35-aB3dE5fG7h
+C36	MUST	adv_04_redaction_bypass_s16.txt	base64 in HTTP header with Password-Base64 name	U3ludGhfQ0FOQVJZMzZfcHc=
+C37	MUST	adv_04_redaction_bypass_s16.txt	base64 under camelCase secret key (clientSecretB64)	U3ludGhfQ0FOQVJZMzdfcHc=
+C38	MUST	adv_04_redaction_bypass_s16.txt	PGP PRIVATE KEY BLOCK	U1lOVEgtTk9ULUEtS0VZLUNBTkFSWTM4LXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eQ==
+C39	MUST	adv_04_redaction_bypass_s16.txt	OTCSTicket with space separator (no = or :)	SynthTkt-CANARY39-aB3dE5fG7h
+C40	SHOULD	adv_05_redaction_bypass_s18.txt	\uXXXX escape of letters in JSON key (p\u0061ssword)	CANARY40
+C41	SHOULD	adv_05_redaction_bypass_s18.txt	percent-encoded & inside query-string password value (partial leak)	CANARY41
+C42	SHOULD	adv_05_redaction_bypass_s18.txt	percent-encoded ; inside query-string password value (partial leak)	CANARY42
+C43	SHOULD	adv_05_redaction_bypass_s18.txt	percent-encoded space inside query-string password value (partial leak)	CANARY43
+C44	SHOULD	adv_05_redaction_bypass_s18.txt	Gson HTML-safe escaping (\u0026 / \u003d) of a query string	CANARY44
+C45	SHOULD	adv_05_redaction_bypass_s18.txt	Basic auth value wrapped onto a continuation line	Q0FOQVJZNDVfcHdfbG9uZ19lbm91Z2hfdG9fd3JhcA==
+C46	SHOULD	adv_05_redaction_bypass_s18.txt	JSON-escaped quote inside password value (partial leak)	CANARY46
+C47	SHOULD	adv_05_redaction_bypass_s18.txt	XML password element with CDATA	CANARY47
+C48	SHOULD	adv_05_redaction_bypass_s18.txt	ADO/SQL Server connection string, password containing a space (partial leak)	CANARY48

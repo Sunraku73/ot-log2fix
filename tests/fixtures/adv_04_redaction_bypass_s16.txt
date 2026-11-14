@@ -1,0 +1,15 @@
+2026-11-14 18:00:00,001 INFO  [main] SYNTHETIC redaction-bypass fixture (S1.6) start, host=otcs-synth04.example.invalid
+2026-11-14 18:00:01,002 INFO  [http] GET /otcs/cs.exe?func=ll.login&NextURL=%2525252Fotcs%2525252Fcs.exe%2525253Ffunc%2525253Dll.login%25252526username%2525253Dsynth.user32%25252526password%2525253DSynth_CANARY32_pw
+2026-11-14 18:00:02,003 DEBUG [cfg] db.password_b64=U3ludGhfQ0FOQVJZMzNfcHc=
+2026-11-14 18:00:03,004 DEBUG [tls] loaded key (logger wraps at 40 cols): -----BEGIN PRIV
+ATE KEY-----
+U1lOVEgtTk9ULUEtS0VZLUNBTkFSWTM0LXh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eA==
+-----END PRIVATE KEY-----
+2026-11-14 18:00:04,005 DEBUG [rest] POST /otcs/cs.exe/api/v1/auth -> 200 {"ticket":"SynthTkt-CANARY35-aB3dE5fG7h"}
+2026-11-14 18:00:05,006 DEBUG [http] X-Admin-Password-Base64: U3ludGhfQ0FOQVJZMzZfcHc=
+2026-11-14 18:00:06,007 DEBUG [oauth] {"clientSecretB64":"U3ludGhfQ0FOQVJZMzdfcHc="}
+2026-11-14 18:00:07,008 DEBUG [gpg] -----BEGIN PGP PRIVATE KEY BLOCK-----
+U1lOVEgtTk9ULUEtS0VZLUNBTkFSWTM4LXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eQ==
+-----END PGP PRIVATE KEY BLOCK-----
+2026-11-14 18:00:08,009 DEBUG [rest] OTCSTicket SynthTkt-CANARY39-aB3dE5fG7h
+2026-11-14 18:00:09,010 INFO  [main] SYNTHETIC redaction-bypass fixture (S1.6) end
