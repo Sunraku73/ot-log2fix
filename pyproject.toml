@@ -6,6 +6,18 @@ build-backend = "setuptools.build_meta"
 name = "otlog2fix"
 version = "0.1.0"
 description = "AI-powered log analyzer for OpenText Content Server & AppWorks"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [{name = "Emilio"}]
+keywords = ["opentext", "logs", "analysis", "redaction"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Topic :: System :: Logging",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
 requires-python = ">=3.10"
 dependencies = [
   "typer>=0.12",
@@ -13,6 +25,11 @@ dependencies = [
   "openai>=1.40",
   "pydantic-settings>=2.4",
 ]
+
+[project.urls]
+Homepage = "https://github.com/<GITHUB_OWNER>/OT-Log2Fix"
+Repository = "https://github.com/<GITHUB_OWNER>/OT-Log2Fix"
+Issues = "https://github.com/<GITHUB_OWNER>/OT-Log2Fix/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "python-dotenv>=1"]

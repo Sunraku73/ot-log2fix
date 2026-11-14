@@ -91,3 +91,30 @@ def test_control_characters_are_safe_in_markdown_and_terminal() -> None:
     assert "\x1b" not in md and "\x1b" not in out.getvalue()
     assert "\ufffd]8;;http://evil\ufffd\\payload" in md
     assert "\ufffd[2J" in out.getvalue()
+
+
+def test_autolinks_outside_fence_are_neutralized() -> None:
+    evidence = "ERROR www.evil.test/x a@evil.test mailto:a@evil.test"
+    result = AnalysisResult.model_validate(
+        {
+            "status": "ok",
+            "root_cause": "12:30 ORA-01652: www.evil.test/x a@evil.test mailto:a@evil.test",
+            "confidence": "low",
+            "evidence": [evidence],
+            "fix_steps": ["a", "b", "c"],
+            "missing_context": [],
+            "injection_detected": False,
+            "notes": "",
+        },
+        context={"log": evidence},
+    )
+    report = markdown(result, ReportMeta("file", 1, 1, "p", "m", "UTC"))
+    before, fenced = report.split("```text\n", 1)
+    assert "www.evil.test/x" not in before
+    assert "a@evil.test" not in before
+    assert "mailto:a@evil.test" not in before
+    assert "www&#46;evil.test/x" in before
+    assert "a&#64;evil.test" in before
+    assert "mailto&#58;a&#64;evil.test" in before
+    assert "12:30" in before and "ORA-01652:" in before
+    assert fenced.startswith(evidence + "\n```")

@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.text import Text
 
 from . import __version__ as package_version
-from .chunker import select_chunk, split_chunks
+from .chunker import encoded_length, select_chunk, split_chunks
 from .config import Settings
 from .prompts import load_prompt
 from .providers import ProviderError, chat, create_client, is_loopback
@@ -52,10 +52,17 @@ def analyze(
     try:
         settings = Settings()
     except ValidationError as exc:
-        if any(error["loc"] == ("max_chunk_chars",) for error in exc.errors()):
-            message = "OTLF_MAX_CHUNK_CHARS deve essere un intero con valore minimo 1000."
-        else:
-            message = "Configurazione non valida."
+        messages = []
+        for error in exc.errors(include_input=False, include_url=False, include_context=False):
+            field = error["loc"][0] if error["loc"] else "config"
+            name = "OTLF_" + str(field).upper()
+            detail = (
+                "deve essere un intero con valore minimo 1000"
+                if field == "max_chunk_chars"
+                else "valore non valido"
+            )
+            messages.append(f"{name}: {detail}.")
+        message = "\n".join(messages)
         console.print(Text(message, style="red"))
         raise typer.Exit(code=1) from exc
     if not settings.redact and (
@@ -68,20 +75,15 @@ def analyze(
     if settings.redact:
         log = redact(log)
 
-    def measure(value: str) -> int:
-        return len(
-            json.dumps(value, ensure_ascii=False)[1:-1]
-            .replace("<", "\\u003c")
-            .replace(">", "\\u003e")
-        )
-
     try:
         budget = settings.max_chunk_chars - 2
-        if budget > 0 and any(measure(line) > budget for line in log.splitlines(keepends=True)):
+        if budget > 0 and any(
+            encoded_length(line) > budget for line in log.splitlines(keepends=True)
+        ):
             console.print(
                 Text("Attenzione: una riga lunga è stata divisa tra i chunk.", style="yellow")
             )
-        chunks = split_chunks(log, budget, measure=measure)
+        chunks = split_chunks(log, budget, measure=encoded_length)
         index, selected = select_chunk(chunks)
         system, user = load_prompt("analyze_v1.1")
     except ValueError as exc:

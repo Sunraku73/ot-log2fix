@@ -1,6 +1,6 @@
 import pytest
 
-from otlog2fix.chunker import select_chunk, split_chunks
+from otlog2fix.chunker import encoded_length, select_chunk, split_chunks
 
 
 def test_chunk_boundaries_and_selection() -> None:
@@ -40,52 +40,32 @@ def test_select_most_level_tokens_and_ignore_quoted_user_agent() -> None:
 
 
 def test_encoded_measure_respects_budget() -> None:
-    import json
-
-    def measure(value: str) -> int:
-        return len(
-            json.dumps(value, ensure_ascii=False)[1:-1]
-            .replace("<", "\\u003c")
-            .replace(">", "\\u003e")
-        )
-
     text = "<" * 12000
-    chunks = split_chunks(text, 11998, measure)
+    chunks = split_chunks(text, 11998, encoded_length)
     assert "".join(chunks) == text
-    assert all(measure(chunk) + 2 <= 12000 for chunk in chunks)
+    assert all(encoded_length(chunk) + 2 <= 12000 for chunk in chunks)
     with pytest.raises(ValueError):
-        split_chunks("<", 5, measure)
+        split_chunks("<", 5, encoded_length)
 
 
 def test_json_measure_is_additive() -> None:
-    import json
-
-    def measure(value: str) -> int:
-        return len(
-            json.dumps(value, ensure_ascii=False)[1:-1]
-            .replace("<", "\\u003c")
-            .replace(">", "\\u003e")
-        )
-
+    assert encoded_length("") == 0
+    assert encoded_length("<") == 6
     samples = ["ascii", "<", ">", '"', "\\", "\n", "è漢😀"]
     for left in samples:
         for right in samples:
-            assert measure(left + right) == measure(left) + measure(right)
+            assert encoded_length(left + right) == encoded_length(left) + encoded_length(right)
 
 
 def test_two_megabyte_line_completes_within_budget() -> None:
     import subprocess
     import sys
 
-    code = r"""import json
-from otlog2fix.chunker import split_chunks
-
-def measure(value):
-    return len(json.dumps(value, ensure_ascii=False)[1:-1].replace("<", "\\u003c").replace(">", "\\u003e"))
+    code = r"""from otlog2fix.chunker import encoded_length, split_chunks
 text = "<" * (2 * 1024 * 1024)
-chunks = split_chunks(text, 11998, measure)
+chunks = split_chunks(text, 11998, encoded_length)
 assert "".join(chunks) == text
-assert all(measure(chunk) <= 11998 for chunk in chunks)
+assert all(encoded_length(chunk) <= 11998 for chunk in chunks)
 """
     subprocess.run([sys.executable, "-c", code], timeout=5, check=True)
 

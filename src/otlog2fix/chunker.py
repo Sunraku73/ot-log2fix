@@ -1,7 +1,15 @@
 """Suddivisione del log su confini di riga e selezione del chunk."""
 
+import json
 import re
 from collections.abc import Callable
+
+
+def encoded_length(value: str) -> int:
+    """Lunghezza additiva del contenuto JSON dopo l'escape dei delimitatori."""
+    return len(
+        json.dumps(value, ensure_ascii=False)[1:-1].replace("<", "\\u003c").replace(">", "\\u003e")
+    )
 
 
 def split_chunks(text: str, max_chars: int, measure: Callable[[str], int] = len) -> list[str]:

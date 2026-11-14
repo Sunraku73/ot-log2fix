@@ -306,11 +306,11 @@ def test_client_closed_on_success_and_provider_failure(tmp_path: Path, fail: boo
 
 def test_encoded_chunk_limit_in_provider_payload(tmp_path: Path) -> None:
     path = tmp_path / "test.log"
-    path.write_text("<" * 2000, encoding="utf-8")
+    path.write_text("<" * 1992, encoding="utf-8")
     with (
         patch("otlog2fix.cli.Settings", return_value=Settings(max_chunk_chars=1000)),
         patch("otlog2fix.cli.create_client"),
-        patch("otlog2fix.cli.chat", return_value=response("<" * 8)) as chat,
+        patch("otlog2fix.cli.chat", return_value=response("<" * 40)) as chat,
     ):
         result = runner.invoke(app, ["analyze", str(path)])
     assert result.exit_code == 0
@@ -319,8 +319,9 @@ def test_encoded_chunk_limit_in_provider_payload(tmp_path: Path) -> None:
         r"<<<OTLOG_UNTRUSTED_BEGIN nonce=[0-9a-f]{32}>>>\n(.*?)\n<<<OTLOG_UNTRUSTED_END", content
     )
     assert encoded is not None
-    assert json.loads(encoded.group(1)) == "<" * 8
-    assert len(encoded.group(1)) <= 1000
+    assert json.loads(encoded.group(1)) == "<" * 166
+    assert len(encoded.group(1)) == 998
+    assert "chunk 12 di 12" in content
 
 
 def test_invalid_chunk_setting_fails_without_provider(
@@ -334,5 +335,21 @@ def test_invalid_chunk_setting_fails_without_provider(
     assert result.exit_code == 1
     assert "OTLF_MAX_CHUNK_CHARS" in result.stdout
     assert "1000" in result.stdout
+    assert "Traceback" not in result.stdout
+    client.assert_not_called()
+
+
+@pytest.mark.parametrize("value", ["maybe", "fake-secret-DO-NOT-LEAK"])
+def test_invalid_redact_config_is_sanitized(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value: str
+) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("ERROR example", encoding="utf-8")
+    monkeypatch.setenv("OTLF_REDACT", value)
+    with patch("otlog2fix.cli.create_client") as client:
+        result = runner.invoke(app, ["analyze", str(path)])
+    assert result.exit_code == 1
+    assert "OTLF_REDACT" in result.stdout
+    assert value not in result.stdout
     assert "Traceback" not in result.stdout
     client.assert_not_called()
