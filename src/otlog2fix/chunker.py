@@ -5,40 +5,42 @@ from collections.abc import Callable
 
 
 def split_chunks(text: str, max_chars: int, measure: Callable[[str], int] = len) -> list[str]:
-    """Raggruppa righe entro il limite misurato, dividendo quelle troppo lunghe."""
+    """Raggruppa righe con misura additiva: measure(a+b) == measure(a)+measure(b)."""
     if max_chars <= 0:
         raise ValueError("Il limite del chunk deve essere positivo")
     chunks: list[str] = []
     parts: list[str] = []
     size = 0
+    costs: dict[str, int] = {}
     for line in text.splitlines(keepends=True):
-        offset = 0
-        while offset < len(line):
-            remaining = line[offset:]
-            length = measure(remaining)
-            if length > max_chars:
+        length = measure(line)
+        if length > max_chars:
+            start = 0
+            accumulated = 0
+            pieces: list[str] = []
+            for index, char in enumerate(line):
+                if char not in costs:
+                    costs[char] = measure(char)
+                cost = costs[char]
+                if cost > max_chars:
+                    raise ValueError("Un carattere supera il limite del chunk")
+                if accumulated + cost > max_chars:
+                    pieces.append(line[start:index])
+                    start, accumulated = index, 0
+                accumulated += cost
+            if pieces:
                 if parts:
                     chunks.append("".join(parts))
                     parts, size = [], 0
-                low, high = 1, len(remaining)
-                best = 0
-                while low <= high:
-                    mid = (low + high) // 2
-                    if measure(remaining[:mid]) <= max_chars:
-                        best, low = mid, mid + 1
-                    else:
-                        high = mid - 1
-                if best == 0:
-                    raise ValueError("Un carattere supera il limite del chunk")
-                chunks.append(remaining[:best])
-                offset += best
+                chunks.extend(pieces)
+                chunks.append(line[start:])
                 continue
-            if size + length > max_chars:
-                chunks.append("".join(parts))
-                parts, size = [], 0
-            parts.append(remaining)
-            size += length
-            break
+            length = accumulated
+        if size + length > max_chars:
+            chunks.append("".join(parts))
+            parts, size = [], 0
+        parts.append(line)
+        size += length
     if parts:
         chunks.append("".join(parts))
     return chunks

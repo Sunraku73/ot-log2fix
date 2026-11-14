@@ -220,13 +220,14 @@ def test_retry_fails_without_printing_raw_response(tmp_path: Path) -> None:
 
 def test_selected_chunk_and_markdown_file(tmp_path: Path) -> None:
     path = tmp_path / "test.log"
-    path.write_text("first\nERROR two\nlast\n", encoding="utf-8")
+    error_line = "ERROR two " + "x" * 970
+    path.write_text("a" * 990 + "\n" + error_line + "\n" + "b" * 990 + "\n", encoding="utf-8")
     output = tmp_path / "report.md"
-    settings = Settings(max_chunk_chars=13)
+    settings = Settings(max_chunk_chars=1000)
     with (
         patch("otlog2fix.cli.Settings", return_value=settings),
         patch("otlog2fix.cli.create_client"),
-        patch("otlog2fix.cli.chat", return_value=response("ERROR two")) as chat,
+        patch("otlog2fix.cli.chat", return_value=response(error_line[:40])) as chat,
     ):
         result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
     assert result.exit_code == 0
@@ -305,11 +306,11 @@ def test_client_closed_on_success_and_provider_failure(tmp_path: Path, fail: boo
 
 def test_encoded_chunk_limit_in_provider_payload(tmp_path: Path) -> None:
     path = tmp_path / "test.log"
-    path.write_text("<" * 20, encoding="utf-8")
+    path.write_text("<" * 2000, encoding="utf-8")
     with (
-        patch("otlog2fix.cli.Settings", return_value=Settings(max_chunk_chars=20)),
+        patch("otlog2fix.cli.Settings", return_value=Settings(max_chunk_chars=1000)),
         patch("otlog2fix.cli.create_client"),
-        patch("otlog2fix.cli.chat", return_value=response("<<")) as chat,
+        patch("otlog2fix.cli.chat", return_value=response("<" * 8)) as chat,
     ):
         result = runner.invoke(app, ["analyze", str(path)])
     assert result.exit_code == 0
@@ -318,5 +319,20 @@ def test_encoded_chunk_limit_in_provider_payload(tmp_path: Path) -> None:
         r"<<<OTLOG_UNTRUSTED_BEGIN nonce=[0-9a-f]{32}>>>\n(.*?)\n<<<OTLOG_UNTRUSTED_END", content
     )
     assert encoded is not None
-    assert json.loads(encoded.group(1)) == "<<"
-    assert len(encoded.group(1)) <= 20
+    assert json.loads(encoded.group(1)) == "<" * 8
+    assert len(encoded.group(1)) <= 1000
+
+
+def test_invalid_chunk_setting_fails_without_provider(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("ERROR example", encoding="utf-8")
+    monkeypatch.setenv("OTLF_MAX_CHUNK_CHARS", "2")
+    with patch("otlog2fix.cli.create_client") as client:
+        result = runner.invoke(app, ["analyze", str(path)])
+    assert result.exit_code == 1
+    assert "OTLF_MAX_CHUNK_CHARS" in result.stdout
+    assert "1000" in result.stdout
+    assert "Traceback" not in result.stdout
+    client.assert_not_called()

@@ -49,7 +49,15 @@ def analyze(
     if not log.strip():
         console.print("[red]Il file di log è vuoto.[/red]")
         raise typer.Exit(code=1)
-    settings = Settings()
+    try:
+        settings = Settings()
+    except ValidationError as exc:
+        if any(error["loc"] == ("max_chunk_chars",) for error in exc.errors()):
+            message = "OTLF_MAX_CHUNK_CHARS deve essere un intero con valore minimo 1000."
+        else:
+            message = "Configurazione non valida."
+        console.print(Text(message, style="red"))
+        raise typer.Exit(code=1) from exc
     if not settings.redact and (
         settings.provider != "ollama" or not is_loopback(settings.base_url)
     ):

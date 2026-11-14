@@ -1,6 +1,6 @@
 """Configurazione via env/.env (prefisso OTLF_)."""
 
-from pydantic import SecretStr
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     base_url: str = "http://localhost:11434/v1"
     model: str = "qwen3:8b"
     api_key: SecretStr = SecretStr("")
-    max_chunk_chars: int = 12000
+    max_chunk_chars: int = Field(default=12000, ge=1000)
     redact: bool = True
 
     @property

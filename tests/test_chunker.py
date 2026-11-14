@@ -55,3 +55,47 @@ def test_encoded_measure_respects_budget() -> None:
     assert all(measure(chunk) + 2 <= 12000 for chunk in chunks)
     with pytest.raises(ValueError):
         split_chunks("<", 5, measure)
+
+
+def test_json_measure_is_additive() -> None:
+    import json
+
+    def measure(value: str) -> int:
+        return len(
+            json.dumps(value, ensure_ascii=False)[1:-1]
+            .replace("<", "\\u003c")
+            .replace(">", "\\u003e")
+        )
+
+    samples = ["ascii", "<", ">", '"', "\\", "\n", "è漢😀"]
+    for left in samples:
+        for right in samples:
+            assert measure(left + right) == measure(left) + measure(right)
+
+
+def test_two_megabyte_line_completes_within_budget() -> None:
+    import subprocess
+    import sys
+
+    code = r"""import json
+from otlog2fix.chunker import split_chunks
+
+def measure(value):
+    return len(json.dumps(value, ensure_ascii=False)[1:-1].replace("<", "\\u003c").replace(">", "\\u003e"))
+text = "<" * (2 * 1024 * 1024)
+chunks = split_chunks(text, 11998, measure)
+assert "".join(chunks) == text
+assert all(measure(chunk) <= 11998 for chunk in chunks)
+"""
+    subprocess.run([sys.executable, "-c", code], timeout=5, check=True)
+
+
+def test_fast_path_measures_each_line_once() -> None:
+    measured: list[str] = []
+
+    def measure(value: str) -> int:
+        measured.append(value)
+        return len(value)
+
+    assert split_chunks("one\ntwo\n", 5, measure) == ["one\n", "two\n"]
+    assert measured == ["one\n", "two\n"]
