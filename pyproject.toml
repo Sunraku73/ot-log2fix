@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "otlog2fix"
+version = "0.1.0"
+description = "AI-powered log analyzer for OpenText Content Server & AppWorks"
+requires-python = ">=3.10"
+dependencies = [
+  "typer>=0.12",
+  "rich>=13",
+  "openai>=1.40",
+  "pydantic-settings>=2.4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+otlog2fix = "otlog2fix.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
