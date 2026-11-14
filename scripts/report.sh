@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 OUT_DIR="${WORK_DIR:-$HOME/Downloads}"
 mkdir -p "$OUT_DIR"
 OUT="$OUT_DIR/otlf-review-$(date +%Y%m%d-%H%M%S).md"
-PATHS=(src tests docs scripts pyproject.toml Makefile README.md LICENSE .env.example .gitignore)
+PATHS=(src tests docs scripts .github pyproject.toml Makefile README.md LICENSE .env.example .gitignore SECURITY.md)
 
 BASE="${REVIEW_BASE:-}"
 if [ -z "$BASE" ]; then
@@ -16,8 +16,8 @@ if [ -z "$BASE" ]; then echo "Baseline non trovato" >&2; exit 1; fi
 
 allowlisted() {
   case "$1" in
-    src/*|tests/*|docs/*|scripts/*) return 0 ;;
-    pyproject.toml|Makefile|README.md|LICENSE|.env.example|.gitignore) return 0 ;;
+    src/*|tests/*|docs/*|scripts/*|.github/*) return 0 ;;
+    pyproject.toml|Makefile|README.md|LICENSE|.env.example|.gitignore|SECURITY.md) return 0 ;;
     *) return 1 ;;
   esac
 }

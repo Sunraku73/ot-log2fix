@@ -28,7 +28,7 @@ def _safe(value: str) -> str:
 def _escape(value: str) -> str:
     value = html.escape(" ".join(_safe(value).splitlines()), quote=False)
     value = re.sub(r"([\\`*_{}\[\]()!#|~])", r"\\\1", value)
-    value = re.sub(r"(?i)www\.", "www&#46;", value).replace("@", "&#64;")
+    value = re.sub(r"(?i)www\.", "www&#46;", value).replace("@", "&#64;<!-- -->")
     return re.sub(
         r"(?i)\b([a-z][a-z0-9+.-]*)(:)(?=//)|\b(javascript|data|mailto)(:)",
         lambda m: (m.group(1) or m.group(3)) + "&#58;",

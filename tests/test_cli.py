@@ -353,3 +353,23 @@ def test_invalid_redact_config_is_sanitized(
     assert value not in result.stdout
     assert "Traceback" not in result.stdout
     client.assert_not_called()
+
+
+def test_budget_accounts_for_quotes_margin(tmp_path: Path) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("a" * 1996, encoding="utf-8")
+    with (
+        patch("otlog2fix.cli.Settings", return_value=Settings(max_chunk_chars=1000)),
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value=response("a" * 40)) as chat,
+    ):
+        result = runner.invoke(app, ["analyze", str(path)])
+    assert result.exit_code == 0
+    content = chat.call_args.args[2][1]["content"]
+    encoded = re.search(
+        r"<<<OTLOG_UNTRUSTED_BEGIN nonce=[0-9a-f]{32}>>>\n(.*?)\n<<<OTLOG_UNTRUSTED_END", content
+    )
+    assert encoded is not None
+    assert json.loads(encoded.group(1)) == "a" * 998
+    assert len(encoded.group(1)) == 1000
+    assert "chunk 2 di 2" in content
