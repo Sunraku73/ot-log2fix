@@ -1,0 +1,55 @@
+"""Accesso ai provider OpenAI-compatible."""
+
+import time
+from typing import Any
+
+from openai import (
+    APIConnectionError,
+    APIError,
+    APIStatusError,
+    APITimeoutError,
+    OpenAI,
+    OpenAIError,
+)
+
+from .config import Settings
+
+
+class ProviderError(Exception):
+    """Errore durante la comunicazione con il provider."""
+
+
+def create_client(settings: Settings) -> OpenAI:
+    """Crea il client con retry gestiti esplicitamente da chat."""
+    try:
+        return OpenAI(
+            base_url=settings.base_url,
+            api_key=settings.effective_api_key,
+            timeout=60.0,
+            max_retries=0,
+        )
+    except (OpenAIError, ValueError) as exc:
+        raise ProviderError("Configurazione del provider non valida") from exc
+
+
+def chat(client: OpenAI, settings: Settings, messages: list[dict[str, str]]) -> str:
+    """Invia messaggi, ritentando fino a due volte per HTTP 429 e 5xx."""
+    for attempt in range(3):
+        try:
+            response: Any = client.chat.completions.create(
+                model=settings.model, messages=messages, timeout=60.0
+            )
+            content = response.choices[0].message.content
+            if not isinstance(content, str):
+                raise ProviderError("Risposta del provider priva di contenuto testuale")
+            return content
+        except APIStatusError as exc:
+            if (exc.status_code == 429 or exc.status_code >= 500) and attempt < 2:
+                time.sleep(2**attempt)
+                continue
+            raise ProviderError(f"Errore provider HTTP {exc.status_code}") from exc
+        except (APIConnectionError, APITimeoutError, APIError) as exc:
+            raise ProviderError("Errore di comunicazione con il provider") from exc
+        except (IndexError, AttributeError, TypeError) as exc:
+            raise ProviderError("Risposta del provider non valida") from exc
+    raise ProviderError("Errore del provider")

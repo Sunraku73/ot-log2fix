@@ -1,0 +1,11 @@
+11/14/2026 14:22:05.310 [Thread 11] INFO  Request start func=synthreports.run reportID=77 user=synth.user05 client=192.0.2.99
+11/14/2026 14:22:05.402 [Thread 11] ERROR OScript runtime error: Undefined feature 'fOwnerName' referenced on Object
+11/14/2026 14:22:05.402 [Thread 11] ERROR   Error Code: 101106
+11/14/2026 14:22:05.403 [Thread 11] ERROR   Stack trace:
+11/14/2026 14:22:05.403 [Thread 11] ERROR     [0] synthreports::SynthReportsRoot.Utils.FormatRow  line 58
+11/14/2026 14:22:05.403 [Thread 11] ERROR     [1] synthreports::SynthReportsRoot.Utils.BuildTable  line 121
+11/14/2026 14:22:05.404 [Thread 11] ERROR     [2] synthreports::SynthReportsRoot.Requests.Run.Execute  line 33
+11/14/2026 14:22:05.404 [Thread 11] ERROR     [3] webnode::WebNodeRequestHandler.Dispatch  line 412
+11/14/2026 14:22:05.404 [Thread 11] ERROR   Local vars at frame [0]: row=<Assoc 6 keys> node=<DAPINODE 2109001> owner=Undefined
+11/14/2026 14:22:05.405 [Thread 11] ERROR Request failed: synthreports.run (HTTP 500)
+11/14/2026 14:22:05.410 [Thread 11] INFO  Module versions: synthreports 1.4.0 (custom, installed 2026-11-12), webnode 24.4.0

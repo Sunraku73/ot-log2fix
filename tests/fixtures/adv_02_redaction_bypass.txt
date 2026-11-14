@@ -1,0 +1,40 @@
+2026-11-14 16:00:00,001 INFO  [main] SYNTHETIC redaction-bypass fixture start, host=otcs-synth02.example.invalid
+2026-11-14 16:00:01,002 INFO  [cfg] Loaded db settings user=otcs_synth password=Synth_CANARY01_pw pool=20
+2026-11-14 16:00:02,003 INFO  [cfg] PassWord : "Synth CANARY02 pw with spaces"
+2026-11-14 16:00:03,004 DEBUG [http] Request headers: Authorization: Basic c3ludGguYWRtaW46U3ludGhfQ0FOQVJZMDNfcHc=
+2026-11-14 16:00:04,005 INFO  [db] Connecting jdbc:oracle:thin:otcs_synth/Synth_CANARY04_pw@//192.0.2.10:1521/OTCSPDB
+2026-11-14 16:00:05,006 INFO  [otds] Sync from https://svc_synth:Synth_CANARY05_pw@otds-synth.example.invalid:8443/otdsws/rest
+2026-11-14 16:00:06,007 INFO  [http] GET /otcs/cs.exe?func=ll.login&username=synth.user09&p%61ssword=Synth%5FCANARY06%5Fpw&NextURL=%2Fotcs
+2026-11-14 16:00:07,008 DEBUG [cfg] Datasource dump:
+  <datasource name="otcs">
+    <user>otcs_synth</user>
+    <password>
+      Synth_CANARY07_pw
+    </password>
+  </datasource>
+2026-11-14 16:00:08,009 DEBUG [cfg] opentext.properties excerpt:
+db.password=Synth_CANA\
+    RY08_pw_tail
+2026-11-14 16:00:09,010 DEBUG [cfg] connection_config_b64=eyJob3N0IjogIjE5Mi4wLjIuMTAiLCAidXNlciI6
+ICJvdGNzX3N5bnRoIiwgInBhc3N3b3JkIjogIlN5
+bnRoX0NBTkFSWTA5X3B3IiwgIm5vdGUiOiAic3lu
+dGhldGljIn0=
+2026-11-14 16:00:10,011 DEBUG [rest] body={"username":"synth.user10","\u0070assword":"Synth_CANARY10_pw"}
+2026-11-14 16:00:11,012 DEBUG [rest] OTCSTicket: SynthTkt0CANARY11xQ9vL2mN8pR4sT6uW1yZ3aB5cD7eF
+2026-11-14 16:00:12,013 DEBUG [http] Cookie: LLTZCookie=0; LLCookie=SynthCookieCANARY12Abc123Def456; OTDSTicket=SynthOtdsCANARY12b
+2026-11-14 16:00:13,014 DEBUG [awp] authorization=bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzeW50aC51c2VyMTMiLCJub3RlIjoiQ0FOQVJZMTMifQ.U3ludGhTaWdDQU5BUlkxMw
+2026-11-14 16:00:14,015 WARN  [llm] fallback provider key sk-or-v1-SynthCANARY14-not-a-real-key-000000 rejected
+2026-11-14 16:00:15,016 INFO  [notify] mail sent to synth.user15@example.invalid cc: synth.user16 [at] example [dot] invalid
+2026-11-14 16:00:16,017 DEBUG [cfg] pwd_enc=U3ludGhfQ0FOQVJZMTZfcHc=
+2026-11-14 16:00:17,018 DEBUG [cfg] secret_hex=53796e74685f43414e41525931375f7077
+2026-11-14 16:00:18,019 INFO  [script] running: sqlplus otcs_synth/"Synth CANARY18 pw"@OTCSDB @fix.sql
+2026-11-14 16:00:19,020 INFO  [jvm] args: -Xmx4g -Dotds.admin.password=Synth_CANARY19_pw -Dfile.encoding=UTF-8
+2026-11-14 16:00:20,021 ERROR [db] java.sql.SQLException: Login failed for user 'otcs_synth' with password 'Synth_CANARY20_pw'
+2026-11-14 16:00:21,022 DEBUG [cfg] pass​word=Synth_CANARY21_pw
+2026-11-14 16:00:22,023 DEBUG [cfg] password	=	Synth_CANARY22_pw
+2026-11-14 16:00:23,024 DEBUG [tls] loaded key:
+-----BEGIN PRIVATE KEY-----
+U1lOVEhFVElDLU5PVC1BLUtFWS1DQU5BUlkyMy14eHh4eHh4eHh4eHh4eHh4eHh4
+eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHg=
+-----END PRIVATE KEY-----
+2026-11-14 16:00:24,025 INFO  [main] SYNTHETIC redaction-bypass fixture end

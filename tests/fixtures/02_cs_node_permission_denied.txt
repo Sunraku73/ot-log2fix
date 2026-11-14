@@ -1,0 +1,9 @@
+2026-11-14T10:41:07.221+01:00 INFO  [rest-worker-3] GET /otcs/cs.exe/api/v2/nodes/2104455/nodes?limit=100 user=synth.svc_integration client=198.51.100.23 status=200 ms=184
+2026-11-14T10:41:07.903+01:00 INFO  [rest-worker-3] GET /otcs/cs.exe/api/v1/nodes/2104467/content user=synth.svc_integration client=198.51.100.23
+2026-11-14T10:41:07.911+01:00 WARN  [rest-worker-3] Permission check failed: user=synth.svc_integration (ID 41022) nodeID=2104467 required=See Contents granted=See
+2026-11-14T10:41:07.912+01:00 ERROR [rest-worker-3] status=403 error="You do not have permission to perform this action." nodeID=2104467 ms=9
+2026-11-14T10:41:08.115+01:00 INFO  [rest-worker-5] PUT /otcs/cs.exe/api/v2/nodes/2104467 user=synth.svc_integration client=198.51.100.23
+2026-11-14T10:41:08.120+01:00 WARN  [rest-worker-5] Permission check failed: user=synth.svc_integration (ID 41022) nodeID=2104467 required=Modify granted=See
+2026-11-14T10:41:08.121+01:00 ERROR [rest-worker-5] status=403 error="You do not have permission to perform this action." nodeID=2104467 ms=6
+2026-11-14T10:41:09.004+01:00 INFO  [audit] Node 2104467 permissions last changed 2026-11-13T18:02:44+01:00 by synth.admin02 (inheritance broken from parent 2104455)
+2026-11-14T10:41:12.440+01:00 INFO  [rest-worker-2] GET /otcs/cs.exe/api/v1/nodes/2104470/content user=synth.svc_integration client=198.51.100.23 status=200 ms=211

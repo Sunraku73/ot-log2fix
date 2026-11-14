@@ -1,0 +1,13 @@
+11/14/2026 07:00:01.010 [Thread 1]  INFO  Content Server startup sequence begin (instance otcs-synth01.example.invalid)
+11/14/2026 07:00:04.552 [Thread 1]  INFO  Loading modules: 143 modules found
+11/14/2026 07:00:09.871 [Thread 1]  INFO  License check: product=Content Server, edition=Synthetic Enterprise, licenseID=SYNTH-LIC-0001
+11/14/2026 07:00:09.872 [Thread 1]  ERROR License check failed: license SYNTH-LIC-0001 expired on 2026-11-13 (grace period 0 days remaining)
+11/14/2026 07:00:09.873 [Thread 1]  WARN  Content Server is running in UNLICENSED mode. Non-administrative logins are restricted.
+11/14/2026 07:00:09.880 [Thread 1]  INFO  License check: product=Synthetic Records Module, licenseID=SYNTH-LIC-0002 valid until 2027-06-30
+11/14/2026 07:00:12.004 [Thread 1]  INFO  Startup complete in 11.0 s
+11/14/2026 08:31:44.120 [Thread 6]  INFO  Login attempt user=synth.user12 client=192.0.2.77
+11/14/2026 08:31:44.133 [Thread 6]  ERROR Login rejected for user=synth.user12: system not licensed for non-administrative access
+11/14/2026 08:32:10.511 [Thread 8]  INFO  Login attempt user=synth.user03 client=192.0.2.80
+11/14/2026 08:32:10.519 [Thread 8]  ERROR Login rejected for user=synth.user03: system not licensed for non-administrative access
+11/14/2026 08:35:02.900 [Thread 2]  INFO  Login attempt user=synth.admin01 client=192.0.2.5
+11/14/2026 08:35:02.940 [Thread 2]  INFO  Login OK user=synth.admin01 (administrative access)

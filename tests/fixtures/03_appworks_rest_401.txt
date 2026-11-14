@@ -1,0 +1,9 @@
+2026-11-14 11:02:10,118 INFO  [http-nio-8443-exec-4] c.s.awp.gateway.RequestFilter - POST /home/synth_org/app/entityRestService/api/synth_claims/entities/Claim?defaultinst_ct=abcd1234 from 203.0.113.17
+2026-11-14 11:02:10,131 DEBUG [http-nio-8443-exec-4] c.s.awp.gateway.AuthFilter - Authorization header present: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzeW50aC5hcHBfdXNlciIsImV4cCI6MTc5NDY0NjgwMCwibm90ZSI6IkNBTkFSWTkwIn0.U3ludGhTaWduYXR1cmVDQU5BUlk5MA
+2026-11-14 11:02:10,140 WARN  [http-nio-8443-exec-4] c.s.awp.gateway.AuthFilter - Token validation failed against OTDS https://otds-synth.example.invalid:8443/otdsws : token expired (exp=2026-11-14T09:00:00Z, now=2026-11-14T10:02:10Z)
+2026-11-14 11:02:10,141 ERROR [http-nio-8443-exec-4] c.s.awp.gateway.RequestFilter - HTTP 401 Unauthorized returned to 203.0.113.17 (resource=synth_claims/Claim)
+2026-11-14 11:02:25,377 INFO  [http-nio-8443-exec-9] c.s.awp.gateway.RequestFilter - POST /home/synth_org/app/entityRestService/api/synth_claims/entities/Claim from 203.0.113.17
+2026-11-14 11:02:25,390 WARN  [http-nio-8443-exec-9] c.s.awp.gateway.AuthFilter - Token validation failed against OTDS https://otds-synth.example.invalid:8443/otdsws : token expired (exp=2026-11-14T09:00:00Z, now=2026-11-14T10:02:25Z)
+2026-11-14 11:02:25,391 ERROR [http-nio-8443-exec-9] c.s.awp.gateway.RequestFilter - HTTP 401 Unauthorized returned to 203.0.113.17 (resource=synth_claims/Claim)
+2026-11-14 11:03:00,002 INFO  [scheduler-1] c.s.awp.health - OTDS reachable, latency 41 ms
+2026-11-14 11:03:00,004 INFO  [scheduler-1] c.s.awp.health - Clock skew vs OTDS: 0.3 s

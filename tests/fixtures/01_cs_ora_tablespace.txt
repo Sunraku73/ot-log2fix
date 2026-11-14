@@ -1,0 +1,14 @@
+11/14/2026 09:12:31.004 [Thread 14] INFO  Request start func=ll.objAction objAction=addVersion nodeID=2000417 user=synth.user01 client=192.0.2.41
+11/14/2026 09:12:31.087 [Thread 14] DEBUG DAPI: Begin transaction (DTreeCore, DVersData)
+11/14/2026 09:12:31.912 [Thread 14] ERROR Database error during INSERT INTO DVersData
+11/14/2026 09:12:31.912 [Thread 14] ERROR   ORA-01653: unable to extend table OTCS_SYNTH.DVERSDATA by 8192 in tablespace OTCS_SYNTH_DATA
+11/14/2026 09:12:31.913 [Thread 14] ERROR   Statement: INSERT INTO DVersData (DocID, VersionID, ProviderId, VerMajor, VerMinor) VALUES (:A1, :A2, :A3, :A4, :A5)
+11/14/2026 09:12:31.915 [Thread 14] WARN  DAPI: Rollback transaction
+11/14/2026 09:12:31.920 [Thread 14] ERROR Request failed: Could not add version to node 2000417 (Error code 662241)
+11/14/2026 09:12:33.140 [Thread 9]  INFO  Request start func=ll.objAction objAction=create parentID=2000100 user=synth.user07 client=192.0.2.58
+11/14/2026 09:12:33.802 [Thread 9]  ERROR   ORA-01653: unable to extend table OTCS_SYNTH.DTREECORE by 1024 in tablespace OTCS_SYNTH_DATA
+11/14/2026 09:12:33.810 [Thread 9]  ERROR Request failed: Could not create document in container 2000100
+11/14/2026 09:12:40.002 [Thread 3]  INFO  Agent run: Notifications (duration 412 ms)
+11/14/2026 09:13:02.511 [Thread 14] INFO  Request start func=ll.objAction objAction=addVersion nodeID=2000418 user=synth.user01 client=192.0.2.41
+11/14/2026 09:13:03.299 [Thread 14] ERROR   ORA-01653: unable to extend table OTCS_SYNTH.DVERSDATA by 8192 in tablespace OTCS_SYNTH_DATA
+11/14/2026 09:13:03.305 [Thread 14] ERROR Request failed: Could not add version to node 2000418 (Error code 662241)

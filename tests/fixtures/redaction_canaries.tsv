@@ -1,0 +1,35 @@
+# id	level	fixture	vector	must_not_appear_after_redaction
+C01	MUST	adv_02_redaction_bypass.txt	key=value baseline	Synth_CANARY01_pw
+C02	MUST	adv_02_redaction_bypass.txt	case-insensitive key, quoted value with spaces	CANARY02
+C02	MUST	adv_02_redaction_bypass.txt	case-insensitive key, quoted value with spaces	pw with spaces
+C03	MUST	adv_02_redaction_bypass.txt	HTTP Basic auth base64	c3ludGguYWRtaW46U3ludGhfQ0FOQVJZMDNfcHc=
+C03	MUST	adv_02_redaction_bypass.txt	HTTP Basic auth base64	Synth_CANARY03_pw
+C04	MUST	adv_02_redaction_bypass.txt	JDBC connection string user/pass@	Synth_CANARY04_pw
+C05	MUST	adv_02_redaction_bypass.txt	URL userinfo	Synth_CANARY05_pw
+C06	MUST	adv_02_redaction_bypass.txt	percent-encoded key and value in query string	Synth%5FCANARY06%5Fpw
+C06	MUST	adv_02_redaction_bypass.txt	percent-encoded key and value in query string	CANARY06
+C07	MUST	adv_02_redaction_bypass.txt	XML element value on following line (multiline)	Synth_CANARY07_pw
+C08	MUST	adv_02_redaction_bypass.txt	Java .properties line continuation splits the value	Synth_CANA
+C08	MUST	adv_02_redaction_bypass.txt	Java .properties line continuation splits the value	RY08_pw_tail
+C09	MUST	adv_02_redaction_bypass.txt	base64 config blob wrapped over multiple lines	eyJob3N0IjogIjE5Mi4wLjIuMTAiLCAidXNlciI6
+C09	MUST	adv_02_redaction_bypass.txt	base64 config blob wrapped over multiple lines	ICJvdGNzX3N5bnRoIiwgInBhc3N3b3JkIjogIlN5
+C09	MUST	adv_02_redaction_bypass.txt	base64 config blob wrapped over multiple lines	bnRoX0NBTkFSWTA5X3B3IiwgIm5vdGUiOiAic3lu
+C09	MUST	adv_02_redaction_bypass.txt	base64 config blob wrapped over multiple lines	dGhldGljIn0=
+C10	MUST	adv_02_redaction_bypass.txt	JSON key with \u escape	Synth_CANARY10_pw
+C11	MUST	adv_02_redaction_bypass.txt	OpenText OTCSTicket header	SynthTkt0CANARY11xQ9vL2mN8pR4sT6uW1yZ3aB5cD7eF
+C12	MUST	adv_02_redaction_bypass.txt	OpenText LLCookie / OTDSTicket cookies	SynthCookieCANARY12Abc123Def456
+C12	MUST	adv_02_redaction_bypass.txt	OpenText LLCookie / OTDSTicket cookies	SynthOtdsCANARY12b
+C13	MUST	adv_02_redaction_bypass.txt	lowercase bearer + JWT	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzeW50aC51c2VyMTMiLCJub3RlIjoiQ0FOQVJZMTMifQ.U3ludGhTaWdDQU5BUlkxMw
+C14	MUST	adv_02_redaction_bypass.txt	provider API key without key= prefix	sk-or-v1-SynthCANARY14-not-a-real-key-000000
+C15a	MUST	adv_02_redaction_bypass.txt	plain email	synth.user15@example.invalid
+C15b	SHOULD	adv_02_redaction_bypass.txt	obfuscated email [at] [dot]	synth.user16 [at] example [dot] invalid
+C16	MUST	adv_02_redaction_bypass.txt	base64 value under pwd-like key	U3ludGhfQ0FOQVJZMTZfcHc=
+C17	SHOULD	adv_02_redaction_bypass.txt	hex value under secret-like key	53796e74685f43414e41525931375f7077
+C18	MUST	adv_02_redaction_bypass.txt	sqlplus user/"quoted pw"@tns	CANARY18
+C19	MUST	adv_02_redaction_bypass.txt	JVM -D system property	Synth_CANARY19_pw
+C20	MUST	adv_02_redaction_bypass.txt	password in exception prose, no '=' sign	Synth_CANARY20_pw
+C21	SHOULD	adv_02_redaction_bypass.txt	zero-width space inside key name	Synth_CANARY21_pw
+C22	MUST	adv_02_redaction_bypass.txt	tab separators and CRLF line ending	Synth_CANARY22_pw
+C23	MUST	adv_02_redaction_bypass.txt	PEM private key block (multiline)	U1lOVEhFVElDLU5PVC1BLUtFWS1DQU5BUlkyMy14eHh4eHh4eHh4eHh4eHh4eHh4
+C23	MUST	adv_02_redaction_bypass.txt	PEM private key block (multiline)	eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHg=
+C90	MUST	03_appworks_rest_401.txt	Bearer JWT in fixture 03 (non-adversarial baseline)	eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzeW50aC5hcHBfdXNlciIsImV4cCI6MTc5NDY0NjgwMCwibm90ZSI6IkNBTkFSWTkwIn0.U3ludGhTaWduYXR1cmVDQU5BUlk5MA
