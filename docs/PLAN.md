@@ -31,12 +31,18 @@ Un nuovo canary MUST si aggiunge solo con evidenza da capture reali anonimizzate
 - [x] S3.2 — Docs di lancio: README EN, `SECURITY.md`, `docs/demo.tape`, `docs/launch-copy.md`, indice review (F43).
 - [x] S3.3 — Autolink email neutralizzati (F39, verificato su GitHub e cmark-gfm), margine virgolette testato (F44), job perf solo manuale con redaction (F45), URL canonici (F46). Review: `docs/reviews/S3.4-claude.md` — APPROVED.
 
-Finding chiusi in S3: F11 (push), F39, F41, F42, F43, F44, F45, F46, F47 (tag riportato su `da681fa`).
+- [x] S3.5 — Hygiene CI (`ruff` bloccato, `permissions: contents: read`, timeout job) e rimozione duplicato perf (F48, F50). Review: `docs/reviews/S3.8-claude.md` — APPROVED.
+- [x] S3.6 — README per nuovi utenti, verificato sul percorso pipx reale. Review: `docs/reviews/S3.6-claude.md`.
+- [x] S3.7 — Timeout configurabile `OTLF_TIMEOUT` (F51), help `--md` (F53), suggerimento 404 (F54), errori provider distinti (F55), `OTLF_ENCODING` (F56), CI Windows (F57). Review: `docs/reviews/S3.8-claude.md` — APPROVED.
+- [x] S3.8 — Esperimento F52 (thinking qwen3): **non adottato** (CPU sempre ≥ 54 s, diagnosi meno precisa); docs cross-platform ed encoding (F58).
+
+Finding chiusi in S3: F11 (push), F39, F41, F42, F43, F44, F45, F46, F47 (tag riportato su `da681fa`), F48, F50, F51, F52 (non adottato), F53, F54, F55, F56, F57, F58.
 
 ### Prima del lancio
 
-- S3.5 — Hygiene CI, rimozione duplicato perf e path relativo della demo (F48, F50): implementato, in attesa di review.
-- S3.7 — Timeout locale configurabile, errori provider, encoding Windows e CI multipiattaforma (F51, F53-F57): implementato, in attesa di review.
+- [ ] **Gate di lancio:** nomi e posizioni reali dei log OpenText nella sezione "Which logs to point at" del README (segnaposto `TODO (maintainer)`, da fornire Emilio).
+- [ ] Al primo push: verificare l'esito del job `windows-latest` in CI (F57 chiuso solo per lettura).
+- [ ] Verificare installazione e analisi su un host Windows reale; poi rimuovere l'avviso "not yet verified" dal README.
 - [ ] Registrare `docs/demo.gif` con `docs/demo.tape` (Ollama locale, fixture sintetica) e verificarla frame per frame.
 - [ ] Abilitare il private vulnerability reporting su GitHub (citato in `SECURITY.md`).
 
@@ -45,7 +51,10 @@ Finding chiusi in S3: F11 (push), F39, F41, F42, F43, F44, F45, F46, F47 (tag ri
 - [ ] **F40 — by-design:** la selezione del chunk è orientabile con apici singoli o senza quote. Soluzione prevista: analisi di tutti i chunk con merge dei risultati.
 - [ ] Output del CLI e del report in inglese.
 - [ ] Pacchetto su PyPI.
-- [ ] F48 — Riproducibilità della CI: `ruff` bloccato, `permissions: contents: read`, `timeout-minutes` sul job `test`, action pinnate per SHA (facoltativo).
+- [ ] Action pinnate per SHA (residuo facoltativo di F48).
 - [ ] F49 — Metadato licenza: `license = "MIT"` + `license-files`, `setuptools>=77`.
-- [ ] F50 — Rimuovere `tests/perf_chunker.py` (duplicato obsoleto di `scripts/perf_chunker.py`).
+- [ ] F59 — `OTLF_ENCODING` con codec non testuali (`rot13`, `base64`, `hex`) → traceback (`config.py`).
+- [ ] F60 — Suggerimento `ollama pull` su 404 anche con provider non Ollama (`providers.py`).
+- [ ] F61 — Risposta 200 non JSON → traceback ed exit 1 invece di 2 (`providers.py`, preesistente).
+- [ ] F62 — Latenza CPU dominata dal prefill (~2600 token): prompt più corto `analyze_v1.2` da misurare; `reasoning_effort=none` eventualmente opt-in solo per `ollama`.
 - [ ] Canary SHOULD C50, C51, C53, C54: promuoverli solo con evidenza da capture reali (rubrica sopra).

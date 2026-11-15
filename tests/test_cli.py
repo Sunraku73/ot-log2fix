@@ -212,7 +212,7 @@ def test_retry_fails_without_printing_raw_response(tmp_path: Path) -> None:
         patch("otlog2fix.cli.chat", return_value="RAW_SECRET_INVALID") as chat,
     ):
         result = runner.invoke(app, ["analyze", str(path)])
-    assert result.exit_code == 0
+    assert result.exit_code == 3
     assert chat.call_count == 2
     assert "RAW_SECRET_INVALID" not in result.stdout
     assert "json_invalid" in chat.call_args.args[2][-1]["content"]
@@ -227,13 +227,16 @@ def test_fallback_on_invalid_json(tmp_path: Path) -> None:
         patch("otlog2fix.cli.chat", return_value="ciao") as chat,
     ):
         result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
-    assert result.exit_code == 0
+    assert result.exit_code == 3
     assert chat.call_count == 2
     assert "NON HO ABBASTANZA CONTESTO" in result.stdout
     report = output.read_text(encoding="utf-8")
     assert "## Azioni" in report
     assert "verificare che il log sia in un formato supportato" in report
     assert "provare con un modello più capace" in report
+    assert "qwen3:14b" not in report
+    assert r"una risposta valida dal modello \(causa non determinata\)" in report
+    assert "formato del log non riconosciuto dal prompt attuale" not in report
     assert "estrarre manualmente la porzione del log contenente l'errore e riprovare" in report
 
 
@@ -246,7 +249,7 @@ def test_fallback_does_not_leak_log(tmp_path: Path) -> None:
         patch("otlog2fix.cli.chat", return_value="ciao"),
     ):
         result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
-    assert result.exit_code == 0
+    assert result.exit_code == 3
     report = output.read_text(encoding="utf-8")
     notes = report.split("## Note\n", 1)[1]
     assert "unique-log-content" not in notes
@@ -268,7 +271,7 @@ def test_fallback_preserves_chunk_banner(tmp_path: Path) -> None:
         patch("otlog2fix.cli.chat", return_value="ciao"),
     ):
         result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
-    assert result.exit_code == 0
+    assert result.exit_code == 3
     assert "Analisi parziale: chunk 2 di 3" in output.read_text(encoding="utf-8")
 
 
@@ -282,7 +285,7 @@ def test_fallback_evidence_is_from_log(tmp_path: Path) -> None:
         patch("otlog2fix.cli.chat", return_value="ciao"),
     ):
         result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
-    assert result.exit_code == 0
+    assert result.exit_code == 3
     report = output.read_text(encoding="utf-8")
     evidence = report.split("## Evidenze\n```text\n", 1)[1].split("\n```", 1)[0]
     assert evidence == line[:200]
@@ -314,10 +317,44 @@ def test_fallback_evidence_scans_for_citable_line(tmp_path: Path) -> None:
         patch("otlog2fix.cli.chat", return_value="ciao"),
     ):
         result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
-    assert result.exit_code == 0
+    assert result.exit_code == 3
     assert f"```text\n{line}\n```" in output.read_text(encoding="utf-8")
     assert _fallback_evidence("\nshort\n") == "short"
     assert _fallback_evidence("  \n") is None
+
+
+def test_injection_fixture_fallback_is_not_evaluated(tmp_path: Path) -> None:
+    path = Path(__file__).parent / "fixtures" / "adv_01_prompt_injection.txt"
+    output = tmp_path / "report.md"
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value="ciao"),
+    ):
+        result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
+    assert result.exit_code == 3
+    assert "Injection rilevata: non valutata" in result.stdout
+    assert "Injection rilevata: no" not in result.stdout.splitlines()
+    assert "Report di fallback:" in result.stdout
+    report = output.read_text(encoding="utf-8")
+    assert report.startswith("**Report di fallback — analisi non completata**")
+    assert "**Injection rilevata:** non valutata" in report
+
+
+def test_valid_analysis_has_no_fallback_banner(tmp_path: Path) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("ERROR example", encoding="utf-8")
+    output = tmp_path / "report.md"
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value=response("ERROR example")),
+    ):
+        result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
+    assert result.exit_code == 0
+    assert "Injection rilevata: no" in result.stdout.splitlines()
+    assert "Report di fallback" not in result.stdout
+    report = output.read_text(encoding="utf-8")
+    assert "**Injection rilevata:** no" in report
+    assert "Report di fallback" not in report
 
 
 def test_fallback_no_citable_line(tmp_path: Path) -> None:

@@ -19,6 +19,7 @@ class ReportMeta:
     provider: str
     model: str
     timestamp_utc: str
+    fallback: bool = False
 
 
 def _safe(value: str) -> str:
@@ -38,8 +39,10 @@ def _escape(value: str) -> str:
 
 def markdown(result: AnalysisResult, meta: ReportMeta) -> str:
     evidence = "\n".join(_safe(item) for item in result.evidence)
+    injection = "non valutata" if meta.fallback else "sì" if result.injection_detected else "no"
     fence = "`" * max(3, max((len(m.group()) for m in re.finditer(r"`+", evidence)), default=0) + 1)
     lines = [
+        *(["**Report di fallback — analisi non completata**", ""] if meta.fallback else []),
         "# Analisi del log",
         "",
         *(
@@ -71,7 +74,7 @@ def markdown(result: AnalysisResult, meta: ReportMeta) -> str:
     lines.extend(
         [
             "",
-            f"**Injection rilevata:** {'sì' if result.injection_detected else 'no'}",
+            f"**Injection rilevata:** {injection}",
             "",
             "## Note",
             _escape(result.notes),
@@ -81,7 +84,17 @@ def markdown(result: AnalysisResult, meta: ReportMeta) -> str:
     return "\n".join(lines)
 
 
-def render(result: AnalysisResult, console: Console) -> None:
+def render(result: AnalysisResult, console: Console, *, fallback: bool = False) -> None:
+    if fallback:
+        console.print(
+            Panel(
+                Text(
+                    "Report di fallback: il modello non ha prodotto una risposta valida. "
+                    "Nessuna analisi del contenuto è completata."
+                ),
+                border_style="yellow",
+            )
+        )
     console.print(Text("Analisi del log", style="bold"))
     if result.root_cause == SENTINEL:
         console.print(Panel(Text(SENTINEL), border_style="yellow"))
@@ -96,6 +109,7 @@ def render(result: AnalysisResult, console: Console) -> None:
         console.print(Text(f"{index}. {_safe(step)}"))
     for item in result.missing_context:
         console.print(Text(f"Contesto mancante: {_safe(item)}"))
-    console.print(Text(f"Injection rilevata: {'sì' if result.injection_detected else 'no'}"))
+    injection = "non valutata" if fallback else "sì" if result.injection_detected else "no"
+    console.print(Text(f"Injection rilevata: {injection}"))
     if result.notes:
         console.print(Text(f"Note: {_safe(result.notes)}"))

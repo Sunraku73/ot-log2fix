@@ -127,6 +127,7 @@ def analyze(
         json.dumps(selected, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
     )
     correction = ""
+    fallback = False
     try:
         with create_client(settings) as client:
             for attempt in range(2):
@@ -165,17 +166,14 @@ def analyze(
                                             "verificare che il log sia in un formato supportato "
                                             "(OpenText Content Server, AppWorks, OTDS)"
                                         ),
-                                        (
-                                            "provare con un modello più capace "
-                                            "(es. qwen3:14b o un provider cloud)"
-                                        ),
+                                        "provare con un modello più capace",
                                         (
                                             "estrarre manualmente la porzione del log contenente "
                                             "l'errore e riprovare"
                                         ),
                                     ],
                                     "missing_context": [
-                                        "formato del log non riconosciuto dal prompt attuale"
+                                        "una risposta valida dal modello (causa non determinata)"
                                     ],
                                     "injection_detected": False,
                                     "notes": (
@@ -191,6 +189,7 @@ def analyze(
                             )
                         except ValidationError as fallback_exc:
                             raise ProviderError(FALLBACK_ERROR) from fallback_exc
+                        fallback = True
                         break
                     fields = set(AnalysisResult.model_fields)
                     problems = []
@@ -207,7 +206,7 @@ def analyze(
     except ProviderError as exc:
         console.print(Text(str(exc), style="red"))
         raise typer.Exit(code=2) from exc
-    render(result, console)
+    render(result, console, fallback=fallback)
     if md is not None:
         try:
             md.write_text(
@@ -220,6 +219,7 @@ def analyze(
                         settings.provider,
                         settings.model,
                         datetime.now(timezone.utc).isoformat(),
+                        fallback=fallback,
                     ),
                 ),
                 encoding="utf-8",
@@ -227,3 +227,5 @@ def analyze(
         except (OSError, UnicodeError) as exc:
             console.print(Text(f"Errore scrittura report: {exc}", style="red"))
             raise typer.Exit(code=1) from exc
+    if fallback:
+        raise typer.Exit(code=3)

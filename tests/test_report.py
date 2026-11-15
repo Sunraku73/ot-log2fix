@@ -65,12 +65,40 @@ def test_metadata_partial_and_schemes() -> None:
     result = AnalysisResult.model_validate(data, context={"log": "ERROR"})
     meta = ReportMeta("example.log", 2, 4, "ollama", "model", "2026-11-14T12:30:00+00:00")
     text = markdown(result, meta)
+    assert meta.fallback is False
+    assert "Report di fallback" not in text
+    assert "**Injection rilevata:** no" in text
     assert "Analisi parziale: chunk 2 di 4" in text
     assert "example.log" in text and "ollama" in text and "12:30" in text
     assert "ORA-01652:" in text
     assert "http://evil" not in text and "http&#58;//evil" in text
     assert "javascript&#58;" in text and "data&#58;" in text
     assert "Analisi parziale" not in markdown(result, ReportMeta("a", 1, 1, "p", "m", "UTC"))
+
+
+def test_fallback_report_overrides_injection_status() -> None:
+    result = AnalysisResult.model_validate(
+        {
+            "status": "ok",
+            "root_cause": "test",
+            "confidence": "low",
+            "evidence": ["ERROR"],
+            "fix_steps": ["a", "b", "c"],
+            "missing_context": [],
+            "injection_detected": True,
+            "notes": "",
+        },
+        context={"log": "ERROR"},
+    )
+    meta = ReportMeta("f", 1, 1, "p", "m", "UTC", fallback=True)
+    report = markdown(result, meta)
+    assert report.startswith("**Report di fallback — analisi non completata**")
+    assert "**Injection rilevata:** non valutata" in report
+    out = StringIO()
+    render(result, Console(file=out, force_terminal=False, width=120), fallback=True)
+    assert "Report di fallback:" in out.getvalue()
+    assert "Injection rilevata: non valutata" in out.getvalue()
+    assert "Injection rilevata: sì" not in out.getvalue()
 
 
 def test_control_characters_are_safe_in_markdown_and_terminal() -> None:

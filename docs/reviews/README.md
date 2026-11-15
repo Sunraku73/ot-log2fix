@@ -13,3 +13,6 @@
 | `S2.6-claude.md` | S2.7 | `fix: S2.6 chunker lineare e guard config (F37,F38)` | APPROVED |
 | `S3-claude.md` | S3.2 | `fix: S3.1 autolink residui, messaggi config, test (F39,F41,F42) + CI/packaging` | CHANGES_REQUESTED (F39 email) |
 | `S3.4-claude.md` | S3.4 | `fix: S3.3 autolink email, budget margin, CI perf manuale, URL canonici (F39,F44,F45,F46)` | APPROVED |
+| `S3.6-claude.md` | S3.6 | README per nuovi utenti (solo docs) + prova percorso utente | APPROVED (F51 MAJOR a Codex) |
+| `S3.8-claude.md` | S3.8 | `chore: CI hardening …(F48,F50)`, `fix: S3.7 timeout configurabile …(F51,F53-F57)` + esperimento F52 | APPROVED |
+| `S3.5-claude.md` | S3.5 (task) | round 1: fallback assente; round 2: `feat: S3.4 fallback graceful …`, `fix: S3.4b fallback senza eccezioni …` | CHANGES_REQUESTED (F64 injection) |
