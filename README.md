@@ -178,7 +178,7 @@ There are no OTDS fixtures yet.
 
 `otlog2fix` accepts any plain-text log up to 10 MiB. On logs from other products the answer is more often `NON HO ABBASTANZA CONTESTO` ("not enough context"). This is the intended behavior: the prompt tells the model to say so instead of inventing a diagnosis.
 
-> **TODO (maintainer):** the names and default locations of the log files to analyze for each product are not documented yet. Until then, use the log that contains the error you are investigating, cut down to the relevant time window.
+> Log file names and default locations vary by product version and configuration. Point the tool at the log that contains the error you are investigating, cut down to the relevant time window.
 
 ## Providers
 
