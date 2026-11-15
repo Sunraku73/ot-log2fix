@@ -36,6 +36,7 @@ Finding chiusi in S3: F11 (push), F39, F41, F42, F43, F44, F45, F46, F47 (tag ri
 ### Prima del lancio
 
 - S3.5 — Hygiene CI, rimozione duplicato perf e path relativo della demo (F48, F50): implementato, in attesa di review.
+- S3.7 — Timeout locale configurabile, errori provider, encoding Windows e CI multipiattaforma (F51, F53-F57): implementato, in attesa di review.
 - [ ] Registrare `docs/demo.gif` con `docs/demo.tape` (Ollama locale, fixture sintetica) e verificarla frame per frame.
 - [ ] Abilitare il private vulnerability reporting su GitHub (citato in `SECURITY.md`).
 

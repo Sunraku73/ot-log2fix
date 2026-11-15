@@ -373,3 +373,81 @@ def test_budget_accounts_for_quotes_margin(tmp_path: Path) -> None:
     assert json.loads(encoded.group(1)) == "a" * 998
     assert len(encoded.group(1)) == 1000
     assert "chunk 2 di 2" in content
+
+
+def test_cp1252_log_and_strict_default(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = tmp_path / "windows.log"
+    path.write_bytes(b"caff\xe8")
+    monkeypatch.delenv("OTLF_ENCODING", raising=False)
+    with patch("otlog2fix.cli.create_client") as client:
+        result = runner.invoke(app, ["analyze", str(path)])
+    assert result.exit_code == 1
+    assert "OTLF_ENCODING" in result.stdout and "utf-8" in result.stdout
+    assert "caff" not in result.stdout
+    client.assert_not_called()
+    monkeypatch.setenv("OTLF_ENCODING", "cp1252")
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value=response("caffè")),
+    ):
+        result = runner.invoke(app, ["analyze", str(path)])
+    assert result.exit_code == 0
+
+
+@pytest.mark.parametrize(
+    ("name", "value"),
+    [("OTLF_ENCODING", "invalid-encoding"), ("OTLF_TIMEOUT", "2"), ("OTLF_TIMEOUT", "invalid")],
+)
+def test_invalid_settings_before_provider(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str, value: str
+) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("error", encoding="utf-8")
+    monkeypatch.setenv(name, value)
+    with patch("otlog2fix.cli.create_client") as client:
+        result = runner.invoke(app, ["analyze", str(path)])
+    assert result.exit_code == 1
+    assert name in result.stdout
+    client.assert_not_called()
+
+
+def test_timeout_exits_two(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from unittest.mock import MagicMock
+
+    import openai
+
+    path = tmp_path / "test.log"
+    path.write_text("error", encoding="utf-8")
+    monkeypatch.setenv("OTLF_TIMEOUT", "10")
+    client = MagicMock()
+    client.__enter__.return_value = client
+    client.chat.completions.create.side_effect = openai.APITimeoutError(request=MagicMock())
+    with patch("otlog2fix.cli.create_client", return_value=client):
+        result = runner.invoke(app, ["analyze", str(path)])
+    assert result.exit_code == 2
+    assert "Timeout del provider dopo 10s" in result.stdout
+
+
+def test_status_does_not_change_stdout(tmp_path: Path) -> None:
+    from contextlib import nullcontext
+
+    path = tmp_path / "test.log"
+    path.write_text("error", encoding="utf-8")
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value=response("error")),
+    ):
+        actual = runner.invoke(app, ["analyze", str(path)])
+        with patch("otlog2fix.cli.Console") as status_console:
+            status_console.return_value.status.return_value = nullcontext()
+            expected = runner.invoke(app, ["analyze", str(path)])
+    assert actual.exit_code == expected.exit_code == 0
+    assert actual.stdout_bytes == expected.stdout_bytes
+    assert "Attesa risposta" not in actual.stdout
+    status_console.assert_called_once_with(stderr=True)
+
+
+def test_md_option_help() -> None:
+    result = runner.invoke(app, ["analyze", "--help"])
+    assert result.exit_code == 0
+    assert "Salva il report Markdown" in result.stdout

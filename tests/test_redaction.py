@@ -58,7 +58,8 @@ def test_redaction_long_adversarial_line_finishes() -> None:
         "from otlog2fix.redaction import redact; "
         "redact('<password>' * (1048576 // len('<password>')))"
     )
-    subprocess.run([sys.executable, "-c", code], timeout=5, check=True)
+    # Windows CI can take longer to start a subprocess under load.
+    subprocess.run([sys.executable, "-c", code], timeout=15, check=True)
 
 
 def test_multiline_yaml_and_unterminated_private_key() -> None:

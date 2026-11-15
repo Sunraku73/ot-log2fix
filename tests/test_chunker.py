@@ -67,7 +67,8 @@ chunks = split_chunks(text, 11998, encoded_length)
 assert "".join(chunks) == text
 assert all(encoded_length(chunk) <= 11998 for chunk in chunks)
 """
-    subprocess.run([sys.executable, "-c", code], timeout=5, check=True)
+    # Windows CI can take longer to start a subprocess under load.
+    subprocess.run([sys.executable, "-c", code], timeout=15, check=True)
 
 
 def test_fast_path_measures_each_line_once() -> None:

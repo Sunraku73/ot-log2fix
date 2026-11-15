@@ -1,8 +1,12 @@
 """Verifica manuale del percorso redazione e chunking su log sintetici."""
 
-import resource
 import sys
 import time
+
+try:
+    import resource
+except ImportError:
+    resource = None
 
 from rich.console import Console
 
@@ -21,9 +25,12 @@ def run_case(name: str, text: str) -> None:
     assert redacted == text
     assert "".join(chunks) == text
     assert all(encoded_length(chunk) <= BUDGET for chunk in chunks)
-    rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    rss_mib = rss / (1024 * 1024 if sys.platform == "darwin" else 1024)
-    Console().print(f"{name}: {elapsed:.3f} s, RSS max {rss_mib:.1f} MiB, {len(chunks)} chunk")
+    rss_info = ""
+    if resource is not None:
+        rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        rss_mib = rss / (1024 * 1024 if sys.platform == "darwin" else 1024)
+        rss_info = f", RSS max {rss_mib:.1f} MiB"
+    Console().print(f"{name}: {elapsed:.3f} s{rss_info}, {len(chunks)} chunk")
 
 
 def main() -> None:

@@ -1,7 +1,8 @@
 from pathlib import Path
 
+import pytest
 from dotenv import dotenv_values
-from pydantic import SecretStr
+from pydantic import SecretStr, ValidationError
 
 from otlog2fix.config import Settings
 
@@ -20,3 +21,9 @@ def test_api_key_is_secret() -> None:
     assert "sensitive-test-value" not in repr(settings)
     assert settings.effective_api_key == "sensitive-test-value"
     assert Settings(api_key=SecretStr("")).effective_api_key == "local-no-key"
+
+
+def test_encoding_validation() -> None:
+    assert Settings(encoding="cp1252").encoding == "cp1252"
+    with pytest.raises(ValidationError):
+        Settings(encoding="not-a-real-encoding")

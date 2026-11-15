@@ -4,6 +4,7 @@ import json
 import secrets
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from pydantic import ValidationError
@@ -33,22 +34,9 @@ def version() -> None:
 @app.command()
 def analyze(
     path: str = typer.Argument(..., help="File di log da analizzare"),
-    md: Path | None = None,
+    md: Annotated[Path | None, typer.Option(help="Salva il report Markdown nel file indicato.")] = None,
 ) -> None:
     """Analizza un file di log con il provider configurato."""
-    try:
-        with Path(path).open("rb") as source:
-            data = source.read(MAX_LOG_BYTES + 1)
-        if len(data) > MAX_LOG_BYTES:
-            console.print("[red]Il file supera il limite di 10 MiB.[/red]")
-            raise typer.Exit(code=1)
-        log = data.decode("utf-8")
-    except (OSError, UnicodeError) as exc:
-        console.print(Text(f"Errore lettura file: {exc}", style="red"))
-        raise typer.Exit(code=1) from exc
-    if not log.strip():
-        console.print("[red]Il file di log è vuoto.[/red]")
-        raise typer.Exit(code=1)
     try:
         settings = Settings()
     except ValidationError as exc:
@@ -65,6 +53,28 @@ def analyze(
         message = "\n".join(messages)
         console.print(Text(message, style="red"))
         raise typer.Exit(code=1) from exc
+    try:
+        with Path(path).open("rb") as source:
+            data = source.read(MAX_LOG_BYTES + 1)
+        if len(data) > MAX_LOG_BYTES:
+            console.print("[red]Il file supera il limite di 10 MiB.[/red]")
+            raise typer.Exit(code=1)
+        log = data.decode(settings.encoding)
+    except UnicodeError as exc:
+        console.print(
+            Text(
+                f"Errore decodifica con {settings.encoding}; "
+                "imposta OTLF_ENCODING (es. cp1252 per log Windows).",
+                style="red",
+            )
+        )
+        raise typer.Exit(code=1) from exc
+    except OSError as exc:
+        console.print(Text(f"Errore lettura file: {exc}", style="red"))
+        raise typer.Exit(code=1) from exc
+    if not log.strip():
+        console.print("[red]Il file di log è vuoto.[/red]")
+        raise typer.Exit(code=1)
     if not settings.redact and (
         settings.provider != "ollama" or not is_loopback(settings.base_url)
     ):
@@ -116,7 +126,8 @@ def analyze(
                 ]
                 if correction:
                     messages.append({"role": "user", "content": correction})
-                response = chat(client, settings, messages)
+                with Console(stderr=True).status("Attesa risposta dal provider..."):
+                    response = chat(client, settings, messages)
                 try:
                     result = AnalysisResult.model_validate_json(response, context={"log": selected})
                     break

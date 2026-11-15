@@ -38,7 +38,7 @@ def create_client(settings: Settings) -> OpenAI:
         return OpenAI(
             base_url=settings.base_url,
             api_key=settings.effective_api_key,
-            timeout=60.0,
+            timeout=settings.timeout,
             max_retries=0,
             **kwargs,
         )
@@ -51,7 +51,7 @@ def chat(client: OpenAI, settings: Settings, messages: list[dict[str, str]]) -> 
     for attempt in range(3):
         try:
             response: Any = client.chat.completions.create(
-                model=settings.model, messages=messages, timeout=60.0
+                model=settings.model, messages=messages, timeout=settings.timeout
             )
             content = response.choices[0].message.content
             if not isinstance(content, str):
@@ -61,8 +61,30 @@ def chat(client: OpenAI, settings: Settings, messages: list[dict[str, str]]) -> 
             if (exc.status_code == 429 or exc.status_code >= 500) and attempt < 2:
                 time.sleep(2**attempt)
                 continue
-            raise ProviderError(f"Errore provider HTTP {exc.status_code}") from exc
-        except (APIConnectionError, APITimeoutError, APIError) as exc:
+            message = f"Errore provider HTTP {exc.status_code}"
+            if exc.status_code == 404:
+                message += f". Modello non trovato. Esegui: ollama pull {settings.model}"
+            raise ProviderError(message) from exc
+        except APITimeoutError as exc:
+            raise ProviderError(
+                f"Timeout del provider dopo {settings.timeout:g}s. "
+                "Su CPU aumenta OTLF_TIMEOUT (es. 600)."
+            ) from exc
+        except APIConnectionError as exc:
+            try:
+                url = urlsplit(settings.base_url)
+                host = url.hostname
+                if url.scheme not in {"http", "https"} or not host:
+                    raise ValueError("URL non valida")
+                host = f"[{host}]" if ":" in host else host
+                port = url.port or (443 if url.scheme == "https" else 80)
+                endpoint = f"{url.scheme}://{host}:{port}"
+            except ValueError:
+                endpoint = "endpoint non valido"
+            raise ProviderError(
+                f"Provider non raggiungibile su {endpoint}. Verifica che Ollama sia attivo."
+            ) from exc
+        except APIError as exc:
             raise ProviderError("Errore di comunicazione con il provider") from exc
         except (IndexError, AttributeError, TypeError) as exc:
             raise ProviderError("Risposta del provider non valida") from exc
