@@ -212,10 +212,91 @@ def test_retry_fails_without_printing_raw_response(tmp_path: Path) -> None:
         patch("otlog2fix.cli.chat", return_value="RAW_SECRET_INVALID") as chat,
     ):
         result = runner.invoke(app, ["analyze", str(path)])
-    assert result.exit_code == 2
+    assert result.exit_code == 0
     assert chat.call_count == 2
     assert "RAW_SECRET_INVALID" not in result.stdout
     assert "json_invalid" in chat.call_args.args[2][-1]["content"]
+
+
+def test_fallback_on_invalid_json(tmp_path: Path) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("ERROR failure", encoding="utf-8")
+    output = tmp_path / "report.md"
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value="ciao") as chat,
+    ):
+        result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
+    assert result.exit_code == 0
+    assert chat.call_count == 2
+    assert "NON HO ABBASTANZA CONTESTO" in result.stdout
+    report = output.read_text(encoding="utf-8")
+    assert "## Azioni" in report
+    assert "verificare che il log sia in un formato supportato" in report
+    assert "provare con un modello più capace" in report
+    assert "estrarre manualmente la porzione del log contenente l'errore e riprovare" in report
+
+
+def test_fallback_does_not_leak_log(tmp_path: Path) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("unique-log-content password=private-value", encoding="utf-8")
+    output = tmp_path / "report.md"
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value="ciao"),
+    ):
+        result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
+    assert result.exit_code == 0
+    report = output.read_text(encoding="utf-8")
+    notes = report.split("## Note\n", 1)[1]
+    assert "unique-log-content" not in notes
+    assert "private-value" not in report
+    assert "[REDACTED:password]" in report
+    assert "ciao" not in notes
+
+
+def test_fallback_preserves_chunk_banner(tmp_path: Path) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("a" * 990 + "\nERROR selected\n" + "b" * 990, encoding="utf-8")
+    output = tmp_path / "report.md"
+    with (
+        patch("otlog2fix.cli.Settings", return_value=Settings(max_chunk_chars=1000)),
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value="ciao"),
+    ):
+        result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
+    assert result.exit_code == 0
+    assert "Analisi parziale: chunk 2 di 3" in output.read_text(encoding="utf-8")
+
+
+def test_fallback_evidence_is_from_log(tmp_path: Path) -> None:
+    path = tmp_path / "test.log"
+    line = "ERROR " + "x" * 240
+    path.write_text("\n  " + line + "\n", encoding="utf-8")
+    output = tmp_path / "report.md"
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value="ciao"),
+    ):
+        result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
+    assert result.exit_code == 0
+    report = output.read_text(encoding="utf-8")
+    evidence = report.split("## Evidenze\n```text\n", 1)[1].split("\n```", 1)[0]
+    assert evidence == line[:200]
+
+
+def test_fallback_skips_empty_selected_chunk(tmp_path: Path) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("entry\n" + " " * 1100, encoding="utf-8")
+    output = tmp_path / "report.md"
+    with (
+        patch("otlog2fix.cli.Settings", return_value=Settings(max_chunk_chars=1000)),
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value="ciao"),
+    ):
+        result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
+    assert result.exit_code == 0
+    assert "```text\nentry\n```" in output.read_text(encoding="utf-8")
 
 
 def test_selected_chunk_and_markdown_file(tmp_path: Path) -> None:

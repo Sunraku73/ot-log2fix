@@ -95,6 +95,10 @@ def analyze(
             )
         chunks = split_chunks(log, budget, measure=encoded_length)
         index, selected = select_chunk(chunks)
+        if not selected.strip():
+            nonempty = [(i, chunk) for i, chunk in enumerate(chunks) if chunk.strip()]
+            selected_index, selected = select_chunk([chunk for _, chunk in nonempty])
+            index = nonempty[selected_index][0]
         system, user = load_prompt("analyze_v1.1")
     except ValueError as exc:
         console.print(Text(f"Errore input: {exc}", style="red"))
@@ -132,6 +136,45 @@ def analyze(
                     result = AnalysisResult.model_validate_json(response, context={"log": selected})
                     break
                 except ValidationError as exc:
+                    if attempt == 1:
+                        evidence = next(
+                            (line.strip()[:200] for line in selected.splitlines() if line.strip()),
+                            "[log vuoto]",
+                        )
+                        result = AnalysisResult.model_validate(
+                            {
+                                "status": "insufficient_context",
+                                "root_cause": "NON HO ABBASTANZA CONTESTO",
+                                "confidence": "low",
+                                "evidence": [evidence],
+                                "fix_steps": [
+                                    (
+                                        "verificare che il log sia in un formato supportato "
+                                        "(OpenText Content Server, AppWorks, OTDS)"
+                                    ),
+                                    (
+                                        "provare con un modello più capace "
+                                        "(es. qwen3:14b o un provider cloud)"
+                                    ),
+                                    (
+                                        "estrarre manualmente la porzione del log contenente "
+                                        "l'errore e riprovare"
+                                    ),
+                                ],
+                                "missing_context": [
+                                    "formato del log non riconosciuto dal prompt attuale"
+                                ],
+                                "injection_detected": False,
+                                "notes": (
+                                    "Il provider non ha restituito una risposta JSON valida dopo "
+                                    "due tentativi. Il log potrebbe essere in un formato non "
+                                    "supportato dal prompt attuale o il modello potrebbe non "
+                                    "essere abbastanza capace per questo input."
+                                ),
+                            },
+                            context={"log": selected},
+                        )
+                        break
                     fields = set(AnalysisResult.model_fields)
                     problems = []
                     for error in exc.errors(
@@ -141,10 +184,6 @@ def analyze(
                         field = location[0] if location and location[0] in fields else "schema"
                         detail = error["msg"] if error["type"] == "value_error" else error["type"]
                         problems.append(f"{field}: {detail}")
-                    if attempt == 1:
-                        raise ProviderError(
-                            "Risposta del provider non valida dopo il secondo tentativo"
-                        ) from exc
                     correction = (
                         "Risposta non valida: " + "; ".join(problems) + ". Correggi il JSON."
                     )
