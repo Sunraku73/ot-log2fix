@@ -24,11 +24,26 @@ Finding chiusi in S2: F11, F22, F23, F24, F25, F26, F27, F28, F29, F30, F31, F32
 
 Un nuovo canary MUST si aggiunge solo con evidenza da capture reali anonimizzate, inclusi log DEBUG raccolti durante il troubleshooting se arrivano da capture reali. Offuscamenti ipotetici o esotici restano SHOULD in backlog (xfail strict).
 
-## Backlog Sprint 3
+## Sprint 3 — rilascio 0.1
 
-- [ ] **F39 — launch blocker:** `www.` ed email restano autolink GFM cliccabili nel report Markdown (`report.py`).
-- [ ] **F40 — by-design:** la selezione del chunk è orientabile con apici singoli o senza quote. Da decidere: colonna del livello di log oppure analisi di tutti i chunk.
-- [ ] F41 — Messaggio di configurazione non valida senza nome della variabile, eccetto `OTLF_MAX_CHUNK_CHARS` (`cli.py`).
-- [ ] F42 — Test: asserzione di budget non discriminante nel test CLI; `measure` duplicata nei test invece di essere importata.
+- [x] Repo remoto pubblico `github.com/Sunraku73/ot-log2fix`; storia riscritta con `git filter-repo` prima del primo push (F11; nota sugli SHA in `docs/reviews/README.md`, F43).
+- [x] S3.1 — Messaggi di configurazione per variabile senza valori (F41), `encoded_length` unica (F42), CI con matrice 3.10-3.13, metadati di packaging. Review: `docs/reviews/S3-claude.md` — CHANGES_REQUESTED (F39 email), chiuso da S3.3.
+- [x] S3.2 — Docs di lancio: README EN, `SECURITY.md`, `docs/demo.tape`, `docs/launch-copy.md`, indice review (F43).
+- [x] S3.3 — Autolink email neutralizzati (F39, verificato su GitHub e cmark-gfm), margine virgolette testato (F44), job perf solo manuale con redaction (F45), URL canonici (F46). Review: `docs/reviews/S3.4-claude.md` — APPROVED.
+
+Finding chiusi in S3: F11 (push), F39, F41, F42, F43, F44, F45, F46, F47 (tag riportato su `da681fa`).
+
+### Prima del lancio
+
+- [ ] Registrare `docs/demo.gif` con `docs/demo.tape` (Ollama locale, fixture sintetica) e verificarla frame per frame.
+- [ ] Abilitare il private vulnerability reporting su GitHub (citato in `SECURITY.md`).
+
+## Backlog v0.2
+
+- [ ] **F40 — by-design:** la selezione del chunk è orientabile con apici singoli o senza quote. Soluzione prevista: analisi di tutti i chunk con merge dei risultati.
+- [ ] Output del CLI e del report in inglese.
+- [ ] Pacchetto su PyPI.
+- [ ] F48 — Riproducibilità della CI: `ruff` bloccato, `permissions: contents: read`, `timeout-minutes` sul job `test`, action pinnate per SHA (facoltativo).
+- [ ] F49 — Metadato licenza: `license = "MIT"` + `license-files`, `setuptools>=77`.
+- [ ] F50 — Rimuovere `tests/perf_chunker.py` (duplicato obsoleto di `scripts/perf_chunker.py`).
 - [ ] Canary SHOULD C50, C51, C53, C54: promuoverli solo con evidenza da capture reali (rubrica sopra).
-- [ ] Repo remoto e push (da autorizzare in S3).

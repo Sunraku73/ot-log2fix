@@ -12,3 +12,4 @@
 | `S2.4-claude.md` | S2.5 | `fix: S2.3 report integrity …` (APPROVED), `fix: S2.4 report safety …` (CHANGES_REQUESTED) | — |
 | `S2.6-claude.md` | S2.7 | `fix: S2.6 chunker lineare e guard config (F37,F38)` | APPROVED |
 | `S3-claude.md` | S3.2 | `fix: S3.1 autolink residui, messaggi config, test (F39,F41,F42) + CI/packaging` | CHANGES_REQUESTED (F39 email) |
+| `S3.4-claude.md` | S3.4 | `fix: S3.3 autolink email, budget margin, CI perf manuale, URL canonici (F39,F44,F45,F46)` | APPROVED |
