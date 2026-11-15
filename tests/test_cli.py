@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 from typer.testing import CliRunner
 
-from otlog2fix.cli import app
+from otlog2fix.cli import FALLBACK_ERROR, _fallback_evidence, app
 from otlog2fix.config import Settings
 from otlog2fix.providers import ProviderError
 
@@ -253,6 +253,9 @@ def test_fallback_does_not_leak_log(tmp_path: Path) -> None:
     assert "private-value" not in report
     assert "[REDACTED:password]" in report
     assert "ciao" not in notes
+    assert "prima riga citabile del chunk" in notes
+    assert "non una prova diagnostica" in notes
+    assert len(notes.strip()) <= 600
 
 
 def test_fallback_preserves_chunk_banner(tmp_path: Path) -> None:
@@ -285,7 +288,7 @@ def test_fallback_evidence_is_from_log(tmp_path: Path) -> None:
     assert evidence == line[:200]
 
 
-def test_fallback_skips_empty_selected_chunk(tmp_path: Path) -> None:
+def test_fallback_empty_selected_chunk(tmp_path: Path) -> None:
     path = tmp_path / "test.log"
     path.write_text("entry\n" + " " * 1100, encoding="utf-8")
     output = tmp_path / "report.md"
@@ -295,8 +298,60 @@ def test_fallback_skips_empty_selected_chunk(tmp_path: Path) -> None:
         patch("otlog2fix.cli.chat", return_value="ciao"),
     ):
         result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
+    assert result.exit_code == 2
+    assert FALLBACK_ERROR in " ".join(result.stdout.split())
+    assert "Traceback" not in result.output
+    assert not output.exists()
+
+
+def test_fallback_evidence_scans_for_citable_line(tmp_path: Path) -> None:
+    path = tmp_path / "test.log"
+    line = "Normal line with enough characters for a reliable citation."
+    path.write_text("ERROR x" + " " * 250 + "tail\n" + line, encoding="utf-8")
+    output = tmp_path / "report.md"
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value="ciao"),
+    ):
+        result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
     assert result.exit_code == 0
-    assert "```text\nentry\n```" in output.read_text(encoding="utf-8")
+    assert f"```text\n{line}\n```" in output.read_text(encoding="utf-8")
+    assert _fallback_evidence("\nshort\n") == "short"
+    assert _fallback_evidence("  \n") is None
+
+
+def test_fallback_no_citable_line(tmp_path: Path) -> None:
+    path = tmp_path / "test.log"
+    path.write_text("ERROR secretmarker" + " " * 250 + "tail\nshort" + " " * 250 + "end")
+    output = tmp_path / "report.md"
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value="ciao"),
+    ):
+        result = runner.invoke(app, ["analyze", str(path), "--md", str(output)])
+    assert result.exit_code == 2
+    assert FALLBACK_ERROR in " ".join(result.stdout.split())
+    assert "secretmarker" not in result.output
+    assert "Traceback" not in result.output
+    assert not output.exists()
+
+
+def test_fallback_schema_validation_failure_is_sanitized(tmp_path: Path) -> None:
+    from pydantic import ValidationError
+
+    path = tmp_path / "test.log"
+    path.write_text("secretmarker", encoding="utf-8")
+    error = ValidationError.from_exception_data("test", [])
+    with (
+        patch("otlog2fix.cli.create_client"),
+        patch("otlog2fix.cli.chat", return_value="ciao"),
+        patch("otlog2fix.cli.AnalysisResult.model_validate", side_effect=error),
+    ):
+        result = runner.invoke(app, ["analyze", str(path)])
+    assert result.exit_code == 2
+    assert FALLBACK_ERROR in " ".join(result.stdout.split())
+    assert "secretmarker" not in result.output
+    assert "Traceback" not in result.output
 
 
 def test_selected_chunk_and_markdown_file(tmp_path: Path) -> None:
