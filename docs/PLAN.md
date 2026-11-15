@@ -41,6 +41,7 @@ Finding chiusi in S3: F11 (push), F39, F41, F42, F43, F44, F45, F46, F47 (tag ri
 
 ### Prima del lancio
 
+- S3.9 — Aggiornamento delle action e coerenza dei testi di lancio: implementato, in attesa di review.
 - [ ] **Gate di lancio:** nomi e posizioni reali dei log OpenText nella sezione "Which logs to point at" del README (segnaposto `TODO (maintainer)`, da fornire Emilio).
 - [ ] Al primo push: verificare l'esito del job `windows-latest` in CI (F57 chiuso solo per lettura).
 - [ ] Verificare installazione e analisi su un host Windows reale; poi rimuovere l'avviso "not yet verified" dal README.

@@ -1,8 +1,6 @@
 # Launch copy — drafts (S3.2)
 
-Bozze da rivedere prima di pubblicare. Da fare prima del lancio:
-- registrare `docs/demo.gif`
-- chiudere F39 (S3.3)
+Bozze da rivedere prima di pubblicare.
 
 Regola comune ai tre testi: nessuna promessa di completezza; output in italiano dichiarato.
 
@@ -18,6 +16,8 @@ You point it at a thread log. A local LLM (via Ollama) returns:
 - three fix steps to verify
 
 When the log doesn't contain enough to answer, it is instructed to say so instead of inventing OScript calls or REST endpoints.
+
+Exit codes are 0/1/2/3 (3 = fallback report, no analysis).
 
 The part I cared most about: **logs don't leave your machine** in local mode. Before anything reaches a model, credentials are redacted: passwords, OTCSTicket/LLCookie/OTDSTicket, Authorization headers, JDBC and URL credentials. Cloud providers are allowed only with redaction on.
 
@@ -41,6 +41,8 @@ Not affiliated with or endorsed by OpenText.
 **Text:**
 
 OT-Log2Fix is a Python CLI that reads an OpenText Content Server or AppWorks log and asks an LLM for a root cause, evidence lines and three fix steps. It defaults to Ollama on localhost, so the log stays on the machine.
+
+Exit codes are 0/1/2/3 (3 = fallback report, no analysis).
 
 These logs routinely contain tickets, passwords and connection strings, so most of the work went into the boring parts.
 
