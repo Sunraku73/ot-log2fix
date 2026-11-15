@@ -145,11 +145,12 @@ Pick any model listed on openrouter.ai/models. Redaction cannot be disabled with
 - **Terminal:** status, root cause, confidence, evidence lines, three fix steps and an injection flag.
 - **`--md`:** the same content as Markdown, with file name, provider, model and a UTC timestamp.
 - When the model lacks the information it needs, it must answer `NON HO ABBASTANZA CONTESTO` ("not enough context") and list what is missing, instead of inventing OScript functions or REST endpoints.
-- **Invalid model output:** if the model returns invalid output twice, `otlog2fix` writes a **minimal report** instead of failing. The report says `NON HO ABBASTANZA CONTESTO`, gives three generic suggestions and quotes the first quotable line of the chunk as a reference, not as a diagnosis. Its exit code is `0`: check the report's status (`insufficient_context`) when scripting.
+- **Invalid model output:** if the model returns invalid output twice, `otlog2fix` writes a **fallback report** instead of failing, and exits with code `3`. The report opens with `Report di fallback — analisi non completata`, says `NON HO ABBASTANZA CONTESTO`, gives three generic suggestions and quotes the first quotable line of the chunk as a reference, not as a diagnosis. Prompt injection is shown as `non valutata` ("not assessed"), because no analysis took place. In scripts, check the exit code: `0` is the only complete analysis.
 - **Exit codes:**
   - `0` success
   - `1` input or configuration error
   - `2` provider error, or the model returned invalid output twice and the analyzed chunk has no line that can be quoted (see [Troubleshooting](#troubleshooting))
+  - `3` fallback report: the model returned invalid output twice; the report (terminal and `--md`) is written but contains no analysis
 
 ## Log encoding
 
@@ -238,7 +239,7 @@ The messages are in Italian; the table quotes them as printed.
 | `2` `Timeout del provider dopo 300s. Su CPU aumenta OTLF_TIMEOUT (es. 600).` | The model did not answer within `OTLF_TIMEOUT` seconds: likely on CPU-only machines or with long logs | Raise `OTLF_TIMEOUT` (up to 3600), e.g. `OTLF_TIMEOUT=600` |
 | `2` `Errore provider HTTP 404. Modello non trovato. Esegui: ollama pull qwen3:8b` | The model is not downloaded, or `OTLF_MODEL` is misspelled | Run the suggested `ollama pull`, then `ollama list` to check the exact name |
 | `2` `Errore provider HTTP <code>` (other codes) | The provider rejected the request, e.g. `401` for a wrong API key | Check `OTLF_API_KEY`, `OTLF_MODEL` and `OTLF_BASE_URL` |
-| `0` with a minimal report: cause `NON HO ABBASTANZA CONTESTO`, notes `Il provider non ha restituito una risposta JSON valida dopo due tentativi…` | The model returned invalid JSON twice: more likely with small models or logs outside OpenText. The three suggestions are generic, not a diagnosis | If it happens often, try a larger model (e.g. `qwen3:8b` instead of `qwen3:4b`) or extract the relevant portion of the log |
+| `3` with a fallback report: banner `Report di fallback: il modello non ha prodotto una risposta valida.`, cause `NON HO ABBASTANZA CONTESTO`, `Injection rilevata: non valutata` | The model returned invalid JSON twice: more likely with small models or logs outside OpenText. The three suggestions are generic, not a diagnosis | If it happens often, try a larger model (e.g. `qwen3:8b` instead of `qwen3:4b`) or extract the relevant portion of the log |
 | `2` `Risposta del provider non valida e nessuna riga citabile nel chunk: impossibile produrre un report.` | Invalid JSON twice, and the analyzed chunk has no line that can be quoted as evidence (e.g. only whitespace, or lines made of a short prefix followed by long padding) | Extract the relevant portion of the log, or remove the padding, and retry |
 | `1` `Errore decodifica con utf-8; imposta OTLF_ENCODING (es. cp1252 per log Windows).` | The log is not UTF-8 | Set `OTLF_ENCODING`, see [Log encoding](#log-encoding) |
 | `1` `Il file supera il limite di 10 MiB.` | The log is larger than 10 MiB | Extract the relevant portion, e.g. the time window around the error |

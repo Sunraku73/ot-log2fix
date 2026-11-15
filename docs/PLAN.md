@@ -34,9 +34,10 @@ Un nuovo canary MUST si aggiunge solo con evidenza da capture reali anonimizzate
 - [x] S3.5 — Hygiene CI (`ruff` bloccato, `permissions: contents: read`, timeout job) e rimozione duplicato perf (F48, F50). Review: `docs/reviews/S3.8-claude.md` — APPROVED.
 - [x] S3.6 — README per nuovi utenti, verificato sul percorso pipx reale. Review: `docs/reviews/S3.6-claude.md`.
 - [x] S3.7 — Timeout configurabile `OTLF_TIMEOUT` (F51), help `--md` (F53), suggerimento 404 (F54), errori provider distinti (F55), `OTLF_ENCODING` (F56), CI Windows (F57). Review: `docs/reviews/S3.8-claude.md` — APPROVED.
+- [x] S3.4/S3.4b/S3.5r3 — Fallback su risposta non valida: report di fallback con exit 3, banner, injection "non valutata", provenienza non influenzabile dal modello (F63, F64, F65, F66). Review: `docs/reviews/S3.5-claude.md` (3 round) — APPROVED.
 - [x] S3.8 — Esperimento F52 (thinking qwen3): **non adottato** (CPU sempre ≥ 54 s, diagnosi meno precisa); docs cross-platform ed encoding (F58).
 
-Finding chiusi in S3: F11 (push), F39, F41, F42, F43, F44, F45, F46, F47 (tag riportato su `da681fa`), F48, F50, F51, F52 (non adottato), F53, F54, F55, F56, F57, F58.
+Finding chiusi in S3: F11 (push), F39, F41, F42, F43, F44, F45, F46, F47 (tag riportato su `da681fa`), F48, F50, F51, F52 (non adottato), F53, F54, F55, F56, F57, F58, F63, F64, F65, F66.
 
 ### Prima del lancio
 

@@ -84,7 +84,7 @@ I wrote **OT-Log2Fix** to do the first pass. It sends the log to an LLM and gets
 - **Local by default:** Ollama on localhost; the log doesn't leave the box.
 - **Redaction before any call:** passwords, OT tickets, auth headers, JDBC and URL credentials, PEM keys, emails. There's a canary test suite so known bypasses can't come back.
 - **Cloud is opt-in** (OpenRouter or any OpenAI-compatible endpoint), and only with redaction on. The tool refuses otherwise.
-- **Exit codes** are 0/1/2, so it can sit in a script.
+- **Exit codes** are 0/1/2/3 (3 = fallback report, no analysis), so it can sit in a script.
 
 Limits, up front:
 - **Partial analysis:** only one chunk of a large log is analyzed.
