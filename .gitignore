@@ -8,3 +8,4 @@ dist/
 .env
 samples/private/
 *.log
+demo-report.md

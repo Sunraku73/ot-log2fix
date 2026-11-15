@@ -36,13 +36,13 @@ Sleep 300ms
 Enter
 Sleep 3s
 
-Type "otlog2fix analyze tests/fixtures/01_cs_ora_tablespace.txt --md /tmp/otlf-demo-report.md"
+Type "otlog2fix analyze tests/fixtures/01_cs_ora_tablespace.txt --md demo-report.md"
 Sleep 300ms
 Enter
 # Local model latency: raise this if the answer is not complete in the recording.
 Sleep 25s
 
-Type "head -n 20 /tmp/otlf-demo-report.md"
+Type "head -n 20 demo-report.md"
 Sleep 300ms
 Enter
 Sleep 6s
