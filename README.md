@@ -1,3 +1,6 @@
+Ecco l'intero `README.md` riscritto in italiano, mantenendo tutti i dettagli tecnici, le variabili, i comandi, i codici d'uscita e le note del tuo progetto, e aggiungendo in cima l'intestazione richiesta e la sezione `## Riepilogo` (di circa 235 caratteri).
+
+```markdown
 # OT-Log2Fix
 
 Progetto del corso di costruzione di IA
@@ -6,297 +9,349 @@ Progetto del corso di costruzione di IA
 
 CLI in Python per il triage dei log OpenText Content Server e AppWorks con redazione dei dati sensibili e analisi tramite LLM locali (Ollama) o cloud (OpenRouter), restituendo causa probabile, evidenze e tre azioni correttive.
 
-Command-line triage for OpenText Content Server and AppWorks logs: an LLM reads the log and returns a probable root cause, the evidence lines and three fix steps.
+Triage da riga di comando per i log di OpenText Content Server e AppWorks: un LLM legge il log e restituisce una probabile causa radice, le righe di evidenza e tre passaggi di correzione.
 
+**Stato:** alpha (0.1). I messaggi della CLI e i report sono attualmente in italiano. L'output in inglese è nella roadmap della v0.2.
 
-> **Status: alpha (0.1).** CLI messages and reports are currently in **Italian**. English output is on the v0.2 roadmap.
+## Esempio di output
 
-## Example output
+Output reale di `otlog2fix analyze tests/fixtures/01_cs_ora_tablespace.txt --md report.md`, con Ollama locale e `qwen3:8b`, su un log sintetico di Content Server con errori Oracle `ORA-01653`. Qui sotto è riportato il file `report.md` non modificato (sorgente Markdown). I report sono attualmente in italiano.
 
-Real output of `otlog2fix analyze tests/fixtures/01_cs_ora_tablespace.txt --md report.md`, with local Ollama and `qwen3:8b`, on a synthetic Content Server log with Oracle `ORA-01653` errors. Below is the `report.md` file, unedited (Markdown source). Reports are currently in Italian.
-
-````markdown
+```markdown
 # Analisi del log
 
-**File:** 01\_cs\_ora\_tablespace.txt
-**Chunk:** 1 di 1
-**Provider:** ollama · **Modello:** qwen3:8b
-**Timestamp UTC:** 2026-11-15T11:45:34.673645+00:00
-
-**Stato:** ok
+**File:** 01\_cs\_ora\_tablespace.txt  
+**Chunk:** 1 di 1  
+**Provider:** ollama · **Modello:** qwen3:8b  
+**Timestamp UTC:** 2026-11-15T11:45:34.673645+00:00  
+**Stato:** ok  
 **Confidenza:** medium
 
 ## Causa
+
 Errore ORA-01653: il tablespace OTCS\_SYNTH\_DATA non ha spazio sufficiente per espandere le tabelle DVersData e DTreeCore. I tentativi di aggiungere versioni e creare documenti falliscono a causa della mancanza di spazio disco.
 
 ## Evidenze
+
 ```text
 11/14/2026 09:12:31.912 [Thread 14] ERROR   ORA-01653: unable to extend table OTCS_SYNTH.DVERSDATA by 8192 in tablespace OTCS_SYNTH_DATA
 11/14/2026 09:12:33.802 [Thread 9]  ERROR   ORA-01653: unable to extend table OTCS_SYNTH.DTREECORE by 1024 in tablespace OTCS_SYNTH_DATA
+
 ```
 
 ## Azioni
-1. Verifica lo spazio disponibile nel tablespace OTCS\_SYNTH\_DATA e le dimensioni delle tabelle DVersData/DTreeCore
+
+1. Verifica lo spazio disponibile nel tablespace OTCS_SYNTH_DATA e le dimensioni delle tabelle DVersData/DTreeCore
 2. Espandi il tablespace incrementando la dimensione o aggiungendo nuovi file di dati
-3. Monitora l'uso dello spazio e ottimizza la gestione dei dati \(es. purge vecchi versioni\)
+3. Monitora l'uso dello spazio e ottimizza la gestione dei dati (es. purge vecchi versioni)
 
 ## Contesto mancante
-- Versione del Content Server
-- Configurazione del tablespace OTCS\_SYNTH\_DATA
-- Altri chunk del log per verificare pattern ricorrenti
+
+* Versione del Content Server
+* Configurazione del tablespace OTCS_SYNTH_DATA
+* Altri chunk del log per verificare pattern ricorrenti
 
 **Injection rilevata:** no
 
 ## Note
-Errori ORA-01653 ricorrenti su tablespace OTCS\_SYNTH\_DATA
-````
 
-The same content is printed to the terminal. Each evidence line is checked against the redacted log: it must match the start of a log line. The fix steps are suggestions: verify them before you act.
+Errori ORA-01653 ricorrenti su tablespace OTCS_SYNTH_DATA
 
-## Install
+```
 
-> **Windows: not yet verified on a real host.** The PowerShell commands in this README follow standard syntax and the test suite runs on `windows-latest` in CI, but nobody has yet walked through install and analysis on a Windows machine. Reports are welcome.
+Lo stesso contenuto viene stampato nel terminale. Ogni riga di evidenza viene controllata rispetto al log redatto: deve corrispondere all'inizio di una riga di log. I passaggi di correzione sono suggerimenti: verificali prima di agire.
 
-### Prerequisites
+## Installazione
 
-- **git**: `pipx` uses it to fetch the package from GitHub.
-- **Python 3.10 or newer**.
-- **pipx**: installs the CLI in its own isolated environment.
+**Windows:** non ancora verificato su un host reale. I comandi PowerShell in questo README seguono la sintassi standard e la suite di test gira su `windows-latest` in CI, ma nessuno ha ancora eseguito l'intero percorso di installazione e analisi su una macchina Windows. Le segnalazioni sono benvenute.
 
-Ubuntu 22.04+ / Debian 12+:
+### Prerequisiti
 
-    sudo apt update && sudo apt install -y git python3 pipx
-    pipx ensurepath    # then open a new terminal
+- **git**: `pipx` lo usa per recuperare il pacchetto da GitHub.
+- **Python 3.10 o superiore**.
+- **pipx**: installa la CLI in un proprio ambiente isolato.
 
-Other systems (Windows, macOS, other Linux distributions): see [pipx.pypa.io](https://pipx.pypa.io/stable/installation/) for pipx, [git-scm.com](https://git-scm.com/downloads) for git and [python.org](https://www.python.org/downloads/) for Python.
+**Ubuntu 22.04+ / Debian 12+:**
 
-### Install the CLI
+```bash
+sudo apt update && sudo apt install -y git python3 pipx
+pipx ensurepath    # poi apri un nuovo terminale
 
-    pipx install git+https://github.com/Sunraku73/ot-log2fix.git
-    otlog2fix version     # prints: OT-Log2Fix 0.1.0
-    otlog2fix --help      # lists the commands: version, analyze
+```
 
-Configuration comes from environment variables (prefix `OTLF_`) or from a `.env` file **in the directory you run the command from**. See [`.env.example`](.env.example).
+**Altri sistemi** (Windows, macOS, altre distribuzioni Linux): consulta `pipx.pypa.io` per `pipx`, `git-scm.com` per `git` e `python.org` per Python.
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `OTLF_PROVIDER` | `ollama` | `ollama` or any OpenAI-compatible provider name |
-| `OTLF_BASE_URL` | `http://localhost:11434/v1` | provider endpoint |
-| `OTLF_MODEL` | `qwen3:8b` | model name |
-| `OTLF_API_KEY` | empty | required for cloud providers |
-| `OTLF_TIMEOUT` | `300` | seconds to wait for the model, 10–3600 |
-| `OTLF_ENCODING` | `utf-8` | encoding of the log file (see [Log encoding](#log-encoding)) |
-| `OTLF_MAX_CHUNK_CHARS` | `12000` | chunk size, minimum 1000 |
-| `OTLF_REDACT` | `true` | can be `false` only with local Ollama |
+### Installare la CLI
 
-### Local model with Ollama
+```bash
+pipx install git+[https://github.com/Sunraku73/ot-log2fix.git](https://github.com/Sunraku73/ot-log2fix.git)
+otlog2fix version     # stampa: OT-Log2Fix 0.1.0
+otlog2fix --help      # elenca i comandi: version, analyze
 
-Local mode needs [Ollama](https://ollama.com/download), available for Linux, macOS and Windows.
+```
 
-    ollama pull qwen3:8b      # about 5 GB download
-    ollama list               # qwen3:8b must be listed
+La configurazione proviene da variabili d'ambiente (prefisso `OTLF_`) oppure da un file `.env` nella directory da cui esegui il comando. Vedi `.env.example`.
 
-To check that Ollama is running, query its API: it must answer with the list of models.
+| Variabile | Predefinito | Significato |
+| --- | --- | --- |
+| `OTLF_PROVIDER` | `ollama` | `ollama` o qualsiasi nome di provider compatibile con OpenAI |
+| `OTLF_BASE_URL` | `http://localhost:11434/v1` | endpoint del provider |
+| `OTLF_MODEL` | `qwen3:8b` | nome del modello |
+| `OTLF_API_KEY` | vuoto | obbligatoria per i provider cloud |
+| `OTLF_TIMEOUT` | `300` | secondi di attesa per il modello, 10–3600 |
+| `OTLF_ENCODING` | `utf-8` | codifica del file di log (vedi *Codifica dei log*) |
+| `OTLF_MAX_CHUNK_CHARS` | `12000` | dimensione del chunk, minimo 1000 |
+| `OTLF_REDACT` | `true` | può essere `false` solo con Ollama locale |
 
-    curl http://localhost:11434/api/tags                  # bash
-    Invoke-RestMethod http://localhost:11434/api/tags     # PowerShell
+### Modello locale con Ollama
 
-**Hardware.** Measured on the example log above (14 lines, about 2600 prompt tokens), Ollama 0.23.1, 3 runs or more per row:
+La modalità locale richiede Ollama, disponibile per Linux, macOS e Windows.
 
-| Model | NVIDIA GPU (24 GB VRAM) | CPU only (16 cores) |
-|---|---|---|
-| `qwen3:8b` (5.2 GB) | 6–13 s, valid answer in every run | 80–120 s, valid answer in every run |
-| `qwen3:4b` (2.5 GB) | 20–37 s, valid answer in every run | 220–380 s, **no valid answer in 3 runs** |
+```bash
+ollama pull qwen3:8b      # circa 5 GB di download
+ollama list               # qwen3:8b deve essere elencato
 
-The default timeout (`OTLF_TIMEOUT=300`) covers `qwen3:8b` on CPU. Longer logs take longer: raise it if you see a timeout.
+```
 
-Use `qwen3:8b`. `qwen3:4b` is smaller to download but **not** faster: it reasons for much longer than the 8b. On CPU it failed to produce a valid answer in our runs, so consider it only for a GPU with little memory.
+Per verificare che Ollama sia in esecuzione, interroga la sua API: deve rispondere con l'elenco dei modelli.
 
-## Quickstart
+```bash
+curl http://localhost:11434/api/tags                  # bash
 
-### Local with Ollama (logs never leave the machine)
+```
 
-The defaults already point to `http://localhost:11434/v1` and `qwen3:8b`, so no configuration is needed.
+```powershell
+Invoke-RestMethod http://localhost:11434/api/tags     # PowerShell
 
-bash:
+```
 
-    otlog2fix analyze /path/to/thread.log --md report.md
+**Hardware.** Misurato sul log di esempio qui sopra (14 righe, circa 2600 token di prompt), Ollama 0.23.1, almeno 3 esecuzioni per riga:
 
-Windows PowerShell (quote the path, especially if it contains spaces):
+| Modello | GPU NVIDIA (24 GB VRAM) | Solo CPU (16 core) |
+| --- | --- | --- |
+| `qwen3:8b` (5.2 GB) | 6–13 s, risposta valida in ogni esecuzione | 80–120 s, risposta valida in ogni esecuzione |
+| `qwen3:4b` (2.5 GB) | 20–37 s, risposta valida in ogni esecuzione | 220–380 s, nessuna risposta valida in 3 esecuzioni |
 
-    otlog2fix analyze "C:\Logs\thread.log" --md report.md
+Il timeout predefinito (`OTLF_TIMEOUT=300`) copre `qwen3:8b` su CPU. Log più lunghi richiedono più tempo: aumentalo se vedi un timeout.
 
-### Cloud with OpenRouter (synthetic or anonymized logs only)
+Usa `qwen3:8b`. `qwen3:4b` è più piccolo da scaricare ma non più veloce: ragiona molto più a lungo rispetto all'8b. Su CPU non ha prodotto una risposta valida nelle nostre prove, quindi consideralo solo per una GPU con poca memoria.
 
-bash:
+## Avvio rapido
 
-    export OTLF_PROVIDER=openrouter
-    export OTLF_BASE_URL=https://openrouter.ai/api/v1
-    export OTLF_API_KEY=<your-openrouter-key>
-    export OTLF_MODEL=<model-id>
-    otlog2fix analyze /path/to/thread.log --md report.md
+### Locale con Ollama (i log non lasciano mai la macchina)
 
-Windows PowerShell (the variables last for the current window only):
+I valori predefiniti puntano già a `http://localhost:11434/v1` e `qwen3:8b`, quindi non serve alcuna configurazione.
 
-    $env:OTLF_PROVIDER = "openrouter"
-    $env:OTLF_BASE_URL = "https://openrouter.ai/api/v1"
-    $env:OTLF_API_KEY  = "<your-openrouter-key>"
-    $env:OTLF_MODEL    = "<model-id>"
-    otlog2fix analyze "C:\Logs\thread.log" --md report.md
+**bash:**
 
-Pick any model listed on openrouter.ai/models. Redaction cannot be disabled with a cloud provider.
+```bash
+otlog2fix analyze /percorso/di/thread.log --md report.md
 
-### Output
+```
 
-- **Terminal:** status, root cause, confidence, evidence lines, three fix steps and an injection flag.
-- **`--md`:** the same content as Markdown, with file name, provider, model and a UTC timestamp.
-- When the model lacks the information it needs, it must answer `NON HO ABBASTANZA CONTESTO` ("not enough context") and list what is missing, instead of inventing OScript functions or REST endpoints.
-- **Invalid model output:** if the model returns invalid output twice, `otlog2fix` writes a **fallback report** instead of failing, and exits with code `3`. The report opens with `Report di fallback — analisi non completata`, says `NON HO ABBASTANZA CONTESTO`, gives three generic suggestions and quotes the first quotable line of the chunk as a reference, not as a diagnosis. Prompt injection is shown as `non valutata` ("not assessed"), because no analysis took place. In scripts, check the exit code: `0` is the only complete analysis.
-- **Exit codes:**
-  - `0` success
-  - `1` input or configuration error
-  - `2` provider error, or the model returned invalid output twice and the analyzed chunk has no line that can be quoted (see [Troubleshooting](#troubleshooting))
-  - `3` fallback report: the model returned invalid output twice; the report (terminal and `--md`) is written but contains no analysis
+**Windows PowerShell** (metti il percorso tra virgolette, specialmente se contiene spazi):
 
-## Log encoding
+```powershell
+otlog2fix analyze "C:\Logs\thread.log" --md report.md
 
-Logs are read as **UTF-8** by default. OpenText logs written on Windows servers are often in **CP1252** (Windows-1252). Such a file fails with `Errore decodifica con utf-8; imposta OTLF_ENCODING (es. cp1252 per log Windows).` (exit 1) and nothing is sent to the model. Set the encoding explicitly:
+```
 
-bash:
+### Cloud con OpenRouter (solo log sintetici o anonimizzati)
 
-    OTLF_ENCODING=cp1252 otlog2fix analyze /path/to/thread.log
+**bash:**
 
-Windows PowerShell:
+```bash
+export OTLF_PROVIDER=openrouter
+export OTLF_BASE_URL=[https://openrouter.ai/api/v1](https://openrouter.ai/api/v1)
+export OTLF_API_KEY=<la-tua-chiave-openrouter>
+export OTLF_MODEL=<id-modello>
+otlog2fix analyze /percorso/di/thread.log --md report.md
 
-    $env:OTLF_ENCODING = "cp1252"
-    otlog2fix analyze "C:\Logs\thread.log"
+```
 
-There is no automatic guessing on purpose. CP1252 decodes almost any byte sequence without error, so a wrong guess would not fail: it would silently turn characters into different ones, in what the model reads and in the evidence quoted in the report. An explicit setting fails loudly instead.
+**Windows PowerShell** (le variabili restano attive solo nella finestra corrente):
 
-## Which logs to point at
+```powershell
+$env:OTLF_PROVIDER = "openrouter"
+$env:OTLF_BASE_URL = "[https://openrouter.ai/api/v1](https://openrouter.ai/api/v1)"
+$env:OTLF_API_KEY  = "<la-tua-chiave-openrouter>"
+$env:OTLF_MODEL    = "<id-modello>"
+otlog2fix analyze "C:\Logs\thread.log" --md report.md
 
-The prompt is written for **OpenText** products: Content Server, AppWorks and OTDS. The test fixtures currently cover these cases:
+```
 
-- **Content Server:** database errors (e.g. Oracle `ORA-` codes), node permission errors, license errors, OScript stack traces.
-- **AppWorks:** REST API authentication errors (HTTP 401).
+Puoi scegliere qualsiasi modello elencato su `openrouter.ai/models`. La redazione non può essere disabilitata con un provider cloud.
 
-There are no OTDS fixtures yet.
+## Output
 
-`otlog2fix` accepts any plain-text log up to 10 MiB. On logs from other products the answer is more often `NON HO ABBASTANZA CONTESTO` ("not enough context"). This is the intended behavior: the prompt tells the model to say so instead of inventing a diagnosis.
+* **Terminale:** stato, causa radice, confidenza, righe di evidenza, tre passaggi di correzione e flag di injection.
+* **`--md`:** lo stesso contenuto in formato Markdown, con nome del file, provider, modello e timestamp UTC.
+* Quando il modello non ha le informazioni necessarie, deve rispondere `NON HO ABBASTANZA CONTESTO` ("not enough context") ed elencare cosa manca, invece di inventare funzioni OScript o endpoint REST.
+* **Output del modello non valido:** se il modello restituisce un output non valido due volte, `otlog2fix` scrive un report di fallback invece di fallire ed esce con codice `3`. Il report inizia con `Report di fallback — analisi non completata`, indica `NON HO ABBASTANZA CONTESTO`, fornisce tre suggerimenti generici e cita la prima riga citabile del chunk come riferimento, non come diagnosi. La prompt injection viene indicata come `non valutata` ("not assessed"), perché non è avvenuta alcuna analisi. Negli script, controlla il codice di uscita: `0` è l'unico caso di analisi completa.
+* **Codici di uscita:**
+* `0` successo
+* `1` errore di input o configurazione
+* `2` errore del provider, oppure il modello ha restituito un output non valido due volte e il chunk analizzato non ha alcuna riga citabile (vedi *Risoluzione dei problemi*)
+* `3` report di fallback: il modello ha restituito un output non valido due volte; il report (terminale e `--md`) viene scritto ma non contiene alcuna analisi
 
-> Log file names and default locations vary by product version and configuration. Point the tool at the log that contains the error you are investigating, cut down to the relevant time window.
 
-## Providers
 
-| Provider | `OTLF_PROVIDER` | `OTLF_BASE_URL` | API key | Redaction |
-|---|---|---|---|---|
-| Ollama (local) | `ollama` | `http://localhost:11434/v1` | none | on by default; may be disabled only here |
-| OpenRouter (cloud) | `openrouter` | `https://openrouter.ai/api/v1` | required | mandatory |
-| Other OpenAI-compatible endpoint | any | its `/v1` URL | as required | mandatory unless `ollama` on loopback |
+## Codifica dei log
 
-"Local" means provider `ollama` with host `localhost`, `127.0.0.1` or `::1`. Every other combination is treated as remote.
+I log vengono letti come UTF-8 per impostazione predefinita. I log OpenText scritti su server Windows sono spesso in CP1252 (Windows-1252). Un file simile fallisce con `Errore decodifica con utf-8; imposta OTLF_ENCODING (es. cp1252 per log Windows).` (uscita `1`) e nulla viene inviato al modello. Imposta esplicitamente la codifica:
 
-## Security model
+**bash:**
 
-**In short:** redaction reduces the risk, it does not remove it. For sensitive logs, use local mode.
+```bash
+OTLF_ENCODING=cp1252 otlog2fix analyze /percorso/di/thread.log
 
-### What redaction does
+```
 
-- **Before every model call,** `otlog2fix` removes:
-  - passwords, tokens and OpenText tickets (`OTCSTicket`, `LLCookie`, `OTDSTicket`)
-  - `Authorization` headers and API keys
-  - PEM/PGP private keys
-  - credentials in URLs, JDBC strings and sqlplus commands
-  - email addresses
+**Windows PowerShell:**
 
-  Values are replaced by `[REDACTED:<type>]` placeholders.
-- **Common encodings** are recognized too: percent-encoding, HTML entities, JSON escapes, values split across lines, and base64 under sensitive keys.
-- **Nested encodings:** a line encoded more deeply than the decoding limit is redacted entirely (`[REDACTED:opaque_line]`). When in doubt, it is removed.
-- **No forged lines:** decoding never creates new lines, so a `%0A` inside a field cannot forge a log record.
+```powershell
+$env:OTLF_ENCODING = "cp1252"
+otlog2fix analyze "C:\Logs\thread.log"
 
-### What it does NOT guarantee
+```
 
-- **Redaction is best-effort and pattern-based.** It does not guarantee that the text sent is free of secrets. A secret in an unexpected shape can get through: an unknown key, an unusual encoding, or a value with no label.
-- Minimum coverage is pinned by a **canary gate** (`tests/fixtures/redaction_canaries.tsv`). The gate is a regression threshold, not a proof of completeness:
-  - `MUST`: secrets in the shapes typical of OpenText logs. The build fails if a single one leaks.
-  - `SHOULD`: rarer obfuscations that are not covered yet, tracked as strict `xfail`. When one becomes covered, the test forces its promotion to `MUST`.
-- **DEBUG/trace logs carry more risk.** At those levels (request bodies, headers, configuration dumps) secrets appear more often and in more shapes than at default levels.
+Non c'è un rilevamento automatico di proposito. CP1252 decodifica quasi qualunque sequenza di byte senza errore, quindi una stima errata non fallirebbe: trasformerebbe silenziosamente i caratteri in altri, sia in ciò che legge il modello sia nelle evidenze citate nel report. Un'impostazione esplicita fallisce invece in modo evidente.
 
-### Operating rules
+## Quali log analizzare
 
-| Scenario | Provider | Redaction |
-|---|---|---|
-| Sensitive, production or customer logs | `ollama` on `localhost`/`127.0.0.1`/`::1` | recommended; can be disabled only here |
-| Synthetic or already anonymized logs | cloud (e.g. `openrouter`) | **mandatory**: with `OTLF_REDACT=false` and a non-local provider the command exits with code 1 before any call |
+Il prompt è scritto per prodotti OpenText: Content Server, AppWorks e OTDS. Le fixture di test coprono attualmente questi casi:
 
-- **Proxies are ignored locally.** With a local provider the HTTP client ignores `HTTP(S)_PROXY`/`ALL_PROXY`, so the log cannot leave the machine through a proxy.
-- **"Local" must be local all the way down.** A localhost gateway that forwards to the cloud (e.g. LiteLLM) voids this guarantee.
-- **The log is untrusted input.** It travels JSON-encoded between delimiters with a random nonce, and the system prompt forbids following instructions found in it. This mitigates prompt injection; it does not prevent it.
-- **Spot-check before going to the cloud.** Review the redacted text before using a cloud provider. Never commit real logs: keep them in `samples/private/` (gitignored).
-- **Reporting a bypass:** see [SECURITY.md](SECURITY.md).
+* **Content Server:** errori di database (es. codici Oracle `ORA-`), errori di permessi sui nodi, errori di licenza, stack trace OScript.
+* **AppWorks:** errori di autenticazione REST API (HTTP 401).
 
-## Troubleshooting
+Non ci sono ancora fixture per OTDS.
 
-The messages are in Italian; the table quotes them as printed.
+`otlog2fix` accetta qualsiasi log in testo semplice fino a 10 MiB. Su log di altri prodotti la risposta è più spesso `NON HO ABBASTANZA CONTESTO` ("not enough context"). Questo è il comportamento previsto: il prompt chiede al modello di dirlo invece di inventare una diagnosi.
 
-| Symptom (exit code, message) | Cause | Action |
-|---|---|---|
-| `2` `Provider non raggiungibile su http://localhost:11434. Verifica che Ollama sia attivo.` | Ollama is not running, or `OTLF_BASE_URL` is wrong | Start Ollama and check it with `curl http://localhost:11434/api/tags`. Check `OTLF_BASE_URL` in the environment and in `.env` |
-| `2` `Timeout del provider dopo 300s. Su CPU aumenta OTLF_TIMEOUT (es. 600).` | The model did not answer within `OTLF_TIMEOUT` seconds: likely on CPU-only machines or with long logs | Raise `OTLF_TIMEOUT` (up to 3600), e.g. `OTLF_TIMEOUT=600` |
-| `2` `Errore provider HTTP 404. Modello non trovato. Esegui: ollama pull qwen3:8b` | The model is not downloaded, or `OTLF_MODEL` is misspelled | Run the suggested `ollama pull`, then `ollama list` to check the exact name |
-| `2` `Errore provider HTTP <code>` (other codes) | The provider rejected the request, e.g. `401` for a wrong API key | Check `OTLF_API_KEY`, `OTLF_MODEL` and `OTLF_BASE_URL` |
-| `3` with a fallback report: banner `Report di fallback: il modello non ha prodotto una risposta valida.`, cause `NON HO ABBASTANZA CONTESTO`, `Injection rilevata: non valutata` | The model returned invalid JSON twice: more likely with small models or logs outside OpenText. The three suggestions are generic, not a diagnosis | If it happens often, try a larger model (e.g. `qwen3:8b` instead of `qwen3:4b`) or extract the relevant portion of the log |
-| `2` `Risposta del provider non valida e nessuna riga citabile nel chunk: impossibile produrre un report.` | Invalid JSON twice, and the analyzed chunk has no line that can be quoted as evidence (e.g. only whitespace, or lines made of a short prefix followed by long padding) | Extract the relevant portion of the log, or remove the padding, and retry |
-| `1` `Errore decodifica con utf-8; imposta OTLF_ENCODING (es. cp1252 per log Windows).` | The log is not UTF-8 | Set `OTLF_ENCODING`, see [Log encoding](#log-encoding) |
-| `1` `Il file supera il limite di 10 MiB.` | The log is larger than 10 MiB | Extract the relevant portion, e.g. the time window around the error |
-| `1` `La redaction può essere disabilitata solo con provider locale ollama.` | `OTLF_REDACT=false` with a cloud or non-loopback provider | This is the security policy, not a bug. Keep redaction on, or use local Ollama |
-| `1` `OTLF_MAX_CHUNK_CHARS: deve essere un intero con valore minimo 1000.` | `OTLF_MAX_CHUNK_CHARS` is below 1000 or not a number | Use a value of at least 1000 (default 12000) |
-| `1` `OTLF_<NAME>: valore non valido.` | A setting has an invalid value (e.g. `OTLF_TIMEOUT` outside 10–3600, an unknown `OTLF_ENCODING`) | Fix the named variable; the value itself is never printed |
-| `1` `Errore lettura file: …` | Wrong path or missing file | Check the path (quote it in PowerShell) |
+I nomi dei file di log e i percorsi predefiniti variano in base alla versione del prodotto e alla configurazione. Punta lo strumento al log che contiene l'errore su cui stai indagando, ritagliato sull'intervallo temporale rilevante.
 
-## Known limits
+## Provider
 
-- **Partial analysis.** A log is split into chunks of `OTLF_MAX_CHUNK_CHARS` (default 12000, minimum 1000), and **only one chunk is analyzed**: the one with the most `ERROR`/`FATAL` levels, the most recent on ties. The report says so ("chunk X of Y"). The selection heuristic can be steered by crafted log content.
-- **Best-effort redaction** (see above).
-- **Suggestions, not answers.** Fix steps are suggestions to verify. The model can be wrong even with `high` confidence, and evidence lines are checked to exist in the log, not to be the right ones.
-- **Italian-only output** for now.
+| Provider | `OTLF_PROVIDER` | `OTLF_BASE_URL` | API key | Redazione |
+| --- | --- | --- | --- | --- |
+| Ollama (locale) | `ollama` | `http://localhost:11434/v1` | nessuna | attiva per impostazione predefinita; disattivabile solo qui |
+| OpenRouter (cloud) | `openrouter` | `https://openrouter.ai/api/v1` | obbligatoria | obbligatoria |
+| Altro endpoint compatibile OpenAI | qualsiasi | relativo URL `/v1` | se richiesta | obbligatoria tranne che per `ollama` su loopback |
+
+Per "locale" si intende il provider `ollama` con host `localhost`, `127.0.0.1` o `::1`. Qualsiasi altra combinazione è trattata come remota.
+
+## Modello di sicurezza
+
+In breve: la redazione riduce il rischio, non lo elimina. Per log sensibili, usa la modalità locale.
+
+### Cosa fa la redazione
+
+* Prima di ogni chiamata al modello, `otlog2fix` rimuove:
+* password, token e ticket OpenText (`OTCSTicket`, `LLCookie`, `OTDSTicket`)
+* header `Authorization` e chiavi API
+* chiavi private PEM/PGP
+* credenziali in URL, stringhe JDBC e comandi `sqlplus`
+* indirizzi email
+
+
+* I valori vengono sostituiti con segnaposto `[REDACTED:<type>]`.
+* Vengono riconosciute anche codifiche comuni: percent-encoding, entità HTML, escape JSON, valori spezzati su più righe e base64 sotto chiavi sensibili.
+* **Codifiche annidate:** una riga codificata a un livello più profondo del limite di decodifica viene redatta interamente (`[REDACTED:opaque_line]`). Nel dubbio, viene rimossa.
+* **Nessuna riga forgiata:** la decodifica non crea mai nuove righe, quindi un `%0A` all'interno di un campo non può forgiare un record di log.
+
+### Cosa NON garantisce
+
+* La redazione è *best-effort* e basata su pattern. Non garantisce che il testo inviato sia privo di segreti. Un segreto in una forma imprevista può passare: una chiave sconosciuta, una codifica insolita o un valore senza etichetta.
+* La copertura minima è vincolata da un *canary gate* (`tests/fixtures/redaction_canaries.tsv`). Il gate è una soglia di regressione, non una prova di completezza:
+* **MUST:** segreti nelle forme tipiche dei log OpenText. La build fallisce se anche uno solo trapela.
+* **SHOULD:** offuscamenti più rari non ancora coperti, tracciati come `strict xfail`. Quando uno viene coperto, il test ne impone la promozione a `MUST`.
+
+
+* I log `DEBUG`/`trace` comportano un rischio maggiore. A quei livelli (body di richieste, header, dump di configurazione) i segreti compaiono più spesso e in più forme rispetto ai livelli predefiniti.
+
+### Regole operative
+
+| Scenario | Provider | Redazione |
+| --- | --- | --- |
+| Log sensibili, di produzione o di clienti | `ollama` su `localhost`/`127.0.0.1`/`::1` | consigliata; disattivabile solo qui |
+| Log sintetici o già anonimizzati | cloud (es. `openrouter`) | obbligatoria: con `OTLF_REDACT=false` e un provider non locale il comando esce con codice `1` prima di qualsiasi chiamata |
+
+* **I proxy vengono ignorati in locale.** Con un provider locale il client HTTP ignora `HTTP(S)_PROXY`/`ALL_PROXY`, così il log non può lasciare la macchina tramite un proxy.
+* **"Locale" deve essere locale fino in fondo.** Un gateway su localhost che inoltra al cloud (es. LiteLLM) invalida questa garanzia.
+* **Il log è input non attendibile.** Viaggia codificato in JSON tra delimitatore con nonce casuale, e il system prompt vieta di seguire istruzioni trovate al suo interno. Questo mitiga la prompt injection; non la impedisce.
+* **Controlla a campione prima di andare sul cloud.** Verifica il testo redatto prima di usare un provider cloud. Non fare mai commit di log reali: tienili in `samples/private/` (ignorato da Git).
+* **Segnalazione di bypass:** vedi `SECURITY.md`.
+
+## Risoluzione dei problemi
+
+I messaggi sono in italiano; la tabella li riporta così come vengono stampati.
+
+| Sintomo (codice di uscita, messaggio) | Causa | Azione |
+| --- | --- | --- |
+| `2` `Provider non raggiungibile su http://localhost:11434. Verifica che Ollama sia attivo.` | Ollama non è in esecuzione oppure `OTLF_BASE_URL` è errato | Avvia Ollama e verificalo con `curl http://localhost:11434/api/tags`. Controlla `OTLF_BASE_URL` nell'ambiente e in `.env` |
+| `2` `Timeout del provider dopo 300s. Su CPU aumenta OTLF_TIMEOUT (es. 600).` | Il modello non ha risposto entro `OTLF_TIMEOUT` secondi: probabile su macchine solo CPU o con log lunghi | Aumenta `OTLF_TIMEOUT` (fino a 3600), es. `OTLF_TIMEOUT=600` |
+| `2` `Errore provider HTTP 404. Modello non trovato. Esegui: ollama pull qwen3:8b` | Il modello non è scaricato oppure `OTLF_MODEL` è scritto male | Esegui il comando `ollama pull` suggerito, poi `ollama list` per verificare il nome esatto |
+| `2` `Errore provider HTTP <code>` (altri codici) | Il provider ha rifiutato la richiesta, es. `401` per una chiave API errata | Controlla `OTLF_API_KEY`, `OTLF_MODEL` e `OTLF_BASE_URL` |
+| `3` con report di fallback: banner `Report di fallback: il modello non ha prodotto una risposta valida.`, causa `NON HO ABBASTANZA CONTESTO`, `Injection rilevata: non valutata` | Il modello ha restituito JSON non valido due volte: più probabile con modelli piccoli o log fuori da OpenText. I tre suggerimenti sono generici, non una diagnosi | Se succede spesso, prova un modello più grande (es. `qwen3:8b` invece di `qwen3:4b`) o estrai la porzione rilevante del log |
+| `2` `Risposta del provider non valida e nessuna riga citabile nel chunk: impossibile produrre un report.` | JSON non valido due volte, e il chunk analizzato non ha alcuna riga citabile come evidenza (es. solo spazi bianchi, o righe fatte di un breve prefisso seguito da lungo padding) | Estrai la porzione rilevante del log, oppure rimuovi il padding, e riprova |
+| `1` `Errore decodifica con utf-8; imposta OTLF_ENCODING (es. cp1252 per log Windows).` | Il log non è UTF-8 | Imposta `OTLF_ENCODING`, vedi *Codifica dei log* |
+| `1` `Il file supera il limite di 10 MiB.` | Il file è più grande di 10 MiB | Estrai la porzione rilevante, es. la finestra temporale attorno all'errore |
+| `1` `La redaction può essere disabilitata solo con provider locale ollama.` | `OTLF_REDACT=false` con un provider cloud o non loopback | È la policy di sicurezza, non un bug. Mantieni attiva la redazione oppure usa Ollama locale |
+| `1` `OTLF_MAX_CHUNK_CHARS: deve essere un intero con valore minimo 1000.` | `OTLF_MAX_CHUNK_CHARS` è sotto 1000 o non è un numero | Usa un valore di almeno 1000 (predefinito 12000) |
+| `1` `OTLF_<NAME>: valore non valido.` | Un'impostazione ha un valore non valido (es. `OTLF_TIMEOUT` fuori da 10–3600, un `OTLF_ENCODING` sconosciuto) | Correggi la variabile indicata; il valore in sé non viene mai stampato |
+| `1` `Errore lettura file: …` | Percorso errato o file mancante | Controlla il percorso (mettilo tra virgolette in PowerShell) |
+
+## Limiti noti
+
+* **Analisi parziale.** Un log viene diviso in chunk di `OTLF_MAX_CHUNK_CHARS` (predefinito 12000, minimo 1000) e viene analizzato un solo chunk: quello con il maggior numero di livelli `ERROR`/`FATAL`, il più recente a parità. Il report lo indica ("chunk X di Y"). L'euristica di selezione può essere influenzata da contenuti di log costruiti ad arte.
+* **Redazione *best-effort*.** Vedi sopra.
+* **Suggerimenti, non risposte certe.** I passaggi di correzione sono suggerimenti da verificare. Il modello può sbagliare anche con confidenza alta, e le righe di evidenza vengono controllate per esistere nel log, non per essere quelle giuste.
+* **Output solo in italiano per ora.**
 
 ## Roadmap (v0.2)
 
-These are plans, not commitments:
+Questi sono piani, non impegni:
 
-- Analyze all chunks and merge the results, instead of picking one (removes the selection heuristic).
-- English CLI and report output.
-- Package on PyPI.
-- Promote `SHOULD` canaries to `MUST` when backed by real anonymized captures.
+* Analizzare tutti i chunk e unire i risultati, invece di sceglierne uno (rimuove l'euristica di selezione).
+* Output CLI e report in inglese.
+* Pubblicazione del pacchetto su PyPI.
+* Promozione dei canary `SHOULD` a `MUST` quando supportati da catture reali anonimizzate.
 
-## Development
+## Sviluppo
 
-Linux / macOS:
+**Linux / macOS:**
 
-    python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
-    make check   # ruff + pytest, including the canary gate
+```bash
+python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
+make check   # ruff + pytest, incluso il canary gate
 
-Windows PowerShell (no `make`; not yet verified on a real host):
+```
 
-    py -m venv .venv
-    .venv\Scripts\activate
-    pip install -e ".[dev]"
-    ruff check src tests
-    pytest -q
+**Windows PowerShell** (senza `make`; non ancora verificato su un host reale):
 
-`scripts/report.sh` and `docs/demo.tape` (VHS) are Unix-only tools for maintainers; they are not needed to use or test the CLI.
+```powershell
+py -m venv .venv
+.venv\Scripts\activate
+pip install -e ".[dev]"
+ruff check src tests
+pytest -q
 
-Review history and decisions are in [`docs/reviews/`](docs/reviews/) and [`docs/PLAN.md`](docs/PLAN.md) (in Italian).
+```
 
-## License
+`scripts/report.sh` e `docs/demo.tape` (VHS) sono strumenti riservati ai manutentori su sistemi Unix; non servono per usare o testare la CLI.
 
-MIT, see [LICENSE](LICENSE).
+La cronologia delle revisioni e le decisioni sono in `docs/reviews/` e `docs/PLAN.md` (in italiano).
 
-## Support
+## Licenza
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/G1J72ANIUV)
+MIT, vedi `LICENSE`.
 
----
+## Supporto e ringraziamenti
 
-Not affiliated with or endorsed by OpenText. OpenText, Content Server and AppWorks are trademarks of OpenText Corporation.
+Non affiliato né approvato da OpenText. OpenText, Content Server e AppWorks sono marchi di OpenText Corporation.
+
+Ispirato alle attività pratiche e ai concetti del percorso *Elements of AI* / *Building AI*.
+
+```
+
+```
