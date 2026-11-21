@@ -1,5 +1,11 @@
 # OT-Log2Fix
 
+Progetto del corso di costruzione di IA
+
+## Riepilogo
+
+CLI in Python per il triage dei log OpenText Content Server e AppWorks con redazione dei dati sensibili e analisi tramite LLM locali (Ollama) o cloud (OpenRouter), restituendo causa probabile, evidenze e tre azioni correttive.
+
 Command-line triage for OpenText Content Server and AppWorks logs: an LLM reads the log and returns a probable root cause, the evidence lines and three fix steps.
 
 
