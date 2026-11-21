@@ -1,6 +1,3 @@
-Ecco l'intero `README.md` riscritto in italiano, mantenendo tutti i dettagli tecnici, le variabili, i comandi, i codici d'uscita e le note del tuo progetto, e aggiungendo in cima l'intestazione richiesta e la sezione `## Riepilogo` (di circa 235 caratteri).
-
-```markdown
 # OT-Log2Fix
 
 Progetto del corso di costruzione di IA
